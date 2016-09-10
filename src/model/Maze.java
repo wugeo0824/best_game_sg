@@ -5,6 +5,8 @@ import java.security.InvalidParameterException;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
+import message.PlayerAction;
+
 /**
  * Maze object. Coordinates: top left cell is (0, 0), bottom right cell is
  * (size-1, size-1) This object actually carries the "Current Game State"
@@ -58,14 +60,15 @@ public class Maze implements Serializable {
 	 */
 
 	public void addPlayer(String playerKey, Player player) {
-		boolean success = false;
-		while (!success) {
+		int trials = size * size;
+		while (trials >= 0) {
 			Location random = nextRandomLocation();
 			if (!isPlayerHere(random)) {
 				player.setCurrentLocation(random);
 				players.put(playerKey, player);
-				success = true;
+				trials = -1;
 			}
+			trials --;
 		}
 	}
 
@@ -81,6 +84,43 @@ public class Maze implements Serializable {
 
 		return false;
 	}
+	
+	public boolean movePlayer(String playerKey, PlayerAction action) {
+		if (players.get(playerKey) == null)
+			return false;
+		
+		Player player = players.get(playerKey);
+		Location currentLocation = player.getCurrentLocation();
+		Location destination;
+		
+		switch(action){
+		case MOVE_UP:
+			destination = new Location(currentLocation.getLocationX(), currentLocation.getLocationY() - 1);
+			break;
+		case MOVE_LEFT:
+			destination = new Location(currentLocation.getLocationX() - 1, currentLocation.getLocationY());
+			break;
+		case MOVE_RIGHT:
+			destination = new Location(currentLocation.getLocationX() + 1, currentLocation.getLocationY());
+			break;
+		case MOVE_DOWN:
+			destination = new Location(currentLocation.getLocationX(), currentLocation.getLocationY() + 1);
+			break;
+		default:
+			destination = currentLocation;
+			return true;
+		}
+		
+		if (isLocationValid(destination)){
+			player.setCurrentLocation(destination);
+			if (isTreasureHere(destination)){
+				player.increaseScore();
+			}
+			return true;
+		}
+		
+		return false;
+	} 
 
 	/**
 	 * TREASURES
@@ -103,14 +143,15 @@ public class Maze implements Serializable {
 	}
 
 	private void generateNewTreasure() {
-		boolean success = false;
-		while (!success) {
+		int trials = size * size;
+		while (trials >= 0) {
 			Location random = nextRandomLocation();
 			if (!isTreasureHere(random)) {
 				Treasure newTreasure = new Treasure(random);
 				treasures.put(random.getLocationId(), newTreasure);
-				success = true;
+				trials = -1;
 			}
+			trials --;
 		}
 	}
 
@@ -131,6 +172,29 @@ public class Maze implements Serializable {
 
 	public int getNumberOfTreasures() {
 		return numberOfTreasures;
+	}
+	
+	/**
+	 * The location is not valid, if
+	 * 1. outside the x boundary
+	 * 2. outside the y boundary
+	 * 3. another player is already there
+	 * 
+	 * @param location the location to be checked
+	 * @return true if valid
+	 */
+	private boolean isLocationValid(Location location) {
+		if (location.getLocationX() >= size || location.getLocationY() >= size)
+			return false;
+		
+		if (location.getLocationX() <0 || location.getLocationY() < 0)
+			return false;
+		
+		if (isPlayerHere(location))
+			return false;
+		
+		return true;
+		
 	}
 
 }

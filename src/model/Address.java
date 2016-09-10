@@ -1,8 +1,9 @@
 package model;
 
 import java.io.Serializable;
+import java.rmi.Remote;
 
-public class Address implements Serializable {
+public class Address implements Serializable, Remote {
 
 	/**
 	 * 

@@ -11,18 +11,12 @@ public class ClientMessage implements Serializable {
 	 */
 	private static final long serialVersionUID = 1990824L;
 
-	private String targetId;
 	private PlayerAction playerAction;
 	private Address targetAddress;
 
-	public ClientMessage(Address address, String targetId, PlayerAction playerAction) {
+	public ClientMessage(Address address, PlayerAction playerAction) {
 		super();
-		this.targetId = targetId;
 		this.playerAction = playerAction;
-	}
-
-	public String getTargetId() {
-		return targetId;
 	}
 
 	public PlayerAction getPlayerAction() {

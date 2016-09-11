@@ -10,17 +10,17 @@ import model.Player;
 
 public interface GameNode extends Remote {
 
-	void startNewGame() throws RemoteException;
+	void startProcessingMessages() throws RemoteException;
 
 	boolean enqueueNewMessage(ClientMessage message) throws RemoteException;
 
 	boolean isPrimary() throws RemoteException;
 
 	boolean isBackUp() throws RemoteException;
-
-	void setPrimary(boolean isPrimary) throws RemoteException;
-
-	void setBackUp(boolean isBackUp) throws RemoteException;
+	
+	void becomePrimary() throws RemoteException;
+	
+	void becomeBackUp() throws RemoteException;
 
 	void ping() throws RemoteException;
 	

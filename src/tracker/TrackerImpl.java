@@ -111,13 +111,11 @@ public class TrackerImpl extends UnicastRemoteObject implements Tracker {
 	}
 
 	@Override
-	public synchronized void addNodeToRMIRegistry(Address node) {
+	public synchronized void addNodeToRMIRegistry(Address node) throws RemoteException{
 
 		String nodeIP=node.getHost();
 		int nodePort=node.getPort();
 		String nodeInfo=node.getKey();
-		
-		Address addnode=new Address(nodeIP, nodePort);
 
 //		Registry registry = LocateRegistry.getRegistry(port);
 //		registry.bind(nodeInfo, node);
@@ -125,16 +123,21 @@ public class TrackerImpl extends UnicastRemoteObject implements Tracker {
 		System.out.println("Successfully register node [" + nodeInfo +nodeIP+nodePort+ "]");
 
 		// Add to list of game node names kept by Tracker
-		nodes.add(addnode);
+		nodes.add(node);
 	}
 
 	@Override
-	public void updateNodesList(Vector<Address> updatedNodes){
+	public void updateNodesList(Vector<Address> updatedNodes) throws RemoteException{
 		nodes.clear();
 		nodes.addAll(updatedNodes);
 	}
 
 	private static void printHelp() {
 		System.out.println("java Tracker [port-number] [N] [K]");
+	}
+
+	@Override
+	public int getPort() throws RemoteException {
+		return port;
 	}
 }

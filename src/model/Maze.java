@@ -35,13 +35,11 @@ public class Maze implements Serializable {
 		this.numberOfTreasures = numberOfTreasures;
 
 		rand = new Random();
-
-		initialize();
-	}
-
-	private void initialize() {
 		players = new ConcurrentHashMap<String, Player>();
 		treasures = new ConcurrentHashMap<String, Treasure>(numberOfTreasures);
+	}
+
+	public void initialize() {
 		initializeTreasures();
 	}
 
@@ -59,17 +57,24 @@ public class Maze implements Serializable {
 	 * PLAYERS
 	 */
 
+	
 	public void addPlayer(String playerKey, Player player) {
+		// we only do N*2 times of trials
+		// there wont be empty spaces more than that amount
 		int trials = size * size;
 		while (trials >= 0) {
 			Location random = nextRandomLocation();
-			if (!isPlayerHere(random)) {
+			if (!isPlayerHere(random) && !isTreasureHere(random)) {
 				player.setCurrentLocation(random);
 				players.put(playerKey, player);
 				trials = -1;
 			}
 			trials --;
 		}
+	}
+
+	public ConcurrentHashMap<String, Player> getPlayers() {
+		return players;
 	}
 
 	public void removePlayer(String playerKey) {
@@ -107,6 +112,7 @@ public class Maze implements Serializable {
 			destination = new Location(currentLocation.getLocationX(), currentLocation.getLocationY() + 1);
 			break;
 		default:
+			// STAY
 			destination = currentLocation;
 			return true;
 		}
@@ -114,7 +120,9 @@ public class Maze implements Serializable {
 		if (isLocationValid(destination)){
 			player.setCurrentLocation(destination);
 			if (isTreasureHere(destination)){
+				consumeTreasure(destination);
 				player.increaseScore();
+				generateNewTreasure();
 			}
 			return true;
 		}
@@ -146,13 +154,17 @@ public class Maze implements Serializable {
 		int trials = size * size;
 		while (trials >= 0) {
 			Location random = nextRandomLocation();
-			if (!isTreasureHere(random)) {
+			if (!isTreasureHere(random) && !isPlayerHere(random)) {
 				Treasure newTreasure = new Treasure(random);
 				treasures.put(random.getLocationId(), newTreasure);
 				trials = -1;
 			}
 			trials --;
 		}
+	}
+	
+	private void consumeTreasure(Location location){
+		treasures.remove(location.getLocationId());
 	}
 
 	/**
@@ -194,7 +206,6 @@ public class Maze implements Serializable {
 			return false;
 		
 		return true;
-		
 	}
 
 }

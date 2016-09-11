@@ -1,5 +1,8 @@
 package game;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.rmi.AlreadyBoundException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -18,12 +21,15 @@ import utilities.Constants;
 
 public class Game {
 
+	static String userName;
+	
 	public static void main(String[] args) {
 		
 		// ask for User Name
 		
 		String ip = "";
 		int port = 0;
+		userName = "";
 		
 		// contact tracker
 		Tracker tracker = contactTracker(ip, port);
@@ -57,14 +63,33 @@ public class Game {
 		
 		try {
 			players = tracker.getNodes();
+			String ip = InetAddress.getLocalHost().getHostAddress();
+			int port = tracker.getPort();
+			Address address = new Address(ip, port, userName);
 			
-			GameNodeImpl gameNode = new GameNodeImpl(players, tracker.getN(), tracker.getK());
+			GameNodeImpl gameNode = new GameNodeImpl(tracker, players, tracker.getN(), tracker.getK(), address);
+			bindGameNodeToRmi(address, gameNode);
 			
-			//TODO start the actual game
+			//TODO start the actual game GUI
 			
-		} catch (RemoteException e) {
+		} catch (RemoteException | UnknownHostException e) {
 			System.out.println("Tracker finding failed: " + e.getLocalizedMessage());
 			e.printStackTrace();
+		}
+		
+	}
+	
+	private static void bindGameNodeToRmi(Address address, GameNodeImpl gameNode){
+		Registry registry;
+		try {
+			registry = LocateRegistry.getRegistry(address.getHost(), address.getPort());
+			registry.bind(address.getKey(), gameNode);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+			System.out.println("bind game failed: " + e.getLocalizedMessage());
+		} catch (AlreadyBoundException e) {
+			e.printStackTrace();
+			System.out.println("Player with such user name has already existed in game");
 		}
 		
 	}

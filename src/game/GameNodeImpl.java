@@ -5,7 +5,6 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.security.InvalidParameterException;
 import java.util.Vector;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import message.ClientMessage;
@@ -14,6 +13,7 @@ import message.ServerMessage;
 import model.Address;
 import model.Maze;
 import model.Player;
+import tracker.Tracker;
 
 public class GameNodeImpl implements GameNode {
 
@@ -25,7 +25,11 @@ public class GameNodeImpl implements GameNode {
 	private boolean isPrimary = false;
 	private boolean isBackUp = false;
 
-	private ConcurrentHashMap<String, Address> playersInGame;
+	private boolean gamePlaying = false;
+
+	private Vector<Address> playersInGame;
+
+	private Tracker tracker;
 
 	private Maze theMaze;
 	private Player me;
@@ -36,46 +40,81 @@ public class GameNodeImpl implements GameNode {
 	private LinkedBlockingQueue<ServerMessage> messagesFromServer;
 	private Thread gameThread;
 
-	public GameNodeImpl(Vector<Address> playerNameList, int size, int numberOfTreasures) {
-		if (playerNameList.isEmpty()){
-			primaryServer = here;
-		}
-		
-		if (playerNameList.size() == 1){
-			backUpServer = here;
-		}
-		
-		if (playerNameList.size() >= 2){
-			primaryServer = playerNameList.get(0);
-			backUpServer = playerNameList.get(1);
-		}
-		
+	public GameNodeImpl(Tracker tracker, Vector<Address> playerNameList, int size, int numberOfTreasures,
+			Address here) {
+
+		this.tracker = tracker;
+		this.here = here;
+
 		theMaze = new Maze(size, numberOfTreasures);
 		messagesFromClient = new LinkedBlockingQueue<ClientMessage>(MESSAGE_SIZE_LIMIT);
-
-		playersInGame = new ConcurrentHashMap<String, Address>();
 		workerThread = new Thread(processMessageRunnable);
+
+		playersInGame = new Vector<Address>();
+		playersInGame.addAll(playerNameList);
 
 		messagesFromServer = new LinkedBlockingQueue<ServerMessage>();
 		gameThread = new Thread(updateMazeRunnable);
+
+		// this node has not been added to the tracker yet
+		if (playerNameList.isEmpty()) {
+			primaryServer = here;
+			isPrimary = true;
+			theMaze.addPlayer(here.getKey(), me);
+			try {
+				tracker.addNodeToRMIRegistry(here);
+			} catch (RemoteException e) {
+				// tracker failed
+				e.printStackTrace();
+				System.out.println("Primary server start failed. tracker has stopped working");
+			}
+		}
+
+		if (playerNameList.size() == 1) {
+			primaryServer = playerNameList.get(0);
+			backUpServer = here;
+			isBackUp = true;
+		}
+
+		if (playerNameList.size() >= 2) {
+			primaryServer = playerNameList.get(0);
+			backUpServer = playerNameList.get(1);
+		}
+
+		// if this is not the primary server
+		// tell the primary server that i have joined
+		// and starts the game
+		if (playerNameList.size() >= 1) {
+			try {
+				GameNode primary = ((GameNode) LocateRegistry
+						.getRegistry(primaryServer.getHost(), primaryServer.getPort()).lookup(primaryServer.getKey()));
+				primary.enqueueNewMessage(new ClientMessage(here, PlayerAction.JOIN));
+
+			} catch (RemoteException | NotBoundException e) {
+				e.printStackTrace();
+				System.out.println("Game start failed. Primary Server has stopped working");
+			}
+		}
+		
+		startProcessingMessages();
 	}
 
 	@Override
-	public void startNewGame() {
-		if (primaryServer == null || backUpServer == null){
+	public void startProcessingMessages() {
+		if (primaryServer == null || backUpServer == null) {
 			throw new InvalidParameterException("Primary server address is " + (primaryServer == null));
 		}
-		
+
 		workerThread.start();
 		gameThread.start();
+		gamePlaying = true;
 	}
-	
+
 	/**
-	 * SERVER SIDE
-	 * STARTS
+	 * SERVER SIDE STARTS
 	 */
 
-	public void createFromBackUp(Maze backUpMaze) {
+	public void syncUpMaze(Maze backUpMaze) {
 		theMaze = null;
 		theMaze = new Maze(backUpMaze.getSize(), backUpMaze.getNumberOfTreasures());
 		theMaze.copyDataFrom(backUpMaze);
@@ -94,19 +133,18 @@ public class GameNodeImpl implements GameNode {
 				try {
 					Thread.sleep(20);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				ClientMessage nextMessage = messagesFromClient.poll();
 				if (nextMessage != null) {
-					processMessage(nextMessage);
+					processMessageFromClient(nextMessage);
 				}
 			}
 		}
 
 	};
 
-	private void processMessage(ClientMessage message) {
+	private void processMessageFromClient(ClientMessage message) {
 		Address target = message.getTargetAddress();
 		PlayerAction action = message.getPlayerAction();
 
@@ -120,15 +158,14 @@ public class GameNodeImpl implements GameNode {
 		switch (action) {
 		case JOIN:
 			try {
-				joinGame(playerNode);
+				addNewPlayer(playerNode);
 			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
-				removePlayer(target.getKey());
+				removePlayer(target);
 			}
 			break;
 		case QUIT:
-			removePlayer(target.getKey());
+			removePlayer(target);
 			break;
 		default:
 			// MOVE_UP, LEFT, RIGHT, DOWN, STAY
@@ -139,58 +176,137 @@ public class GameNodeImpl implements GameNode {
 		// update the calling player node
 		try {
 			playerNode.updateGame(new ServerMessage(theMaze));
+			
+			// update the back up server
+			if (!playerNode.getAddress().sameAs(backUpServer))
+				updateBackUpServer();
 		} catch (RemoteException e) {
 			e.printStackTrace();
-			removePlayer(target.getKey());
+			removePlayer(target);
 		}
-
-		// update the back up server
 	}
 
 	public boolean isPrimary() {
 		return isPrimary;
 	}
 
-	public void setPrimary(boolean isPrimary) {
-		this.isPrimary = isPrimary;
-	}
-
 	public boolean isBackUp() {
 		return isBackUp;
 	}
 
-	public void setBackUp(boolean isBackUp) {
-		this.isBackUp = isBackUp;
-	}
-	
-	/**
-	 * SERVER SIDE
-	 * ENDS
-	 */
-	
-	/**
-	 * LOCAL
-	 * STARTS
-	 */
-	
-	public void updatePrimaryAddress(Address primary) {
-		primaryServer = primary;
-	}
-	
-	public void updateBackUp(Address backUp) {
-		backUpServer = backUp;
+	@Override
+	public void becomePrimary() {
+		isPrimary = true;
+		isBackUp = false;
+		primaryServer = here;
+		findNewBackUp();
 	}
 
+	@Override
+	public void becomeBackUp() {
+		isPrimary = false;
+		isBackUp = true;
+		backUpServer = here;
+	}
+
+	/**
+	 * Update the back up server with the most up to date game maze This should
+	 * only be called by primary server
+	 */
+	private void updateBackUpServer() {
+		GameNode backUpNode = null;
+		try {
+			backUpNode = (GameNode) LocateRegistry.getRegistry(backUpServer.getHost(), backUpServer.getPort())
+					.lookup(backUpServer.getKey());
+			backUpNode.updateGame(new ServerMessage(theMaze));
+
+		} catch (RemoteException | NotBoundException e) {
+			// in the event that back up server is no where to be found
+			System.out.println("BackUp Server has stopped working");
+			e.printStackTrace();
+			findNewBackUp();
+		}
+	}
+
+	/**
+	 * Original back up server stopped working, find a new one. only be called
+	 * by primary server
+	 */
+	private void findNewBackUp() {
+		GameNode backUpNode = null;
+
+		try {
+			// find the next available node
+			retrieveNodesListFromTracker();
+			for (int i = 0; i < playersInGame.size(); i++) {
+				Address address = playersInGame.get(i);
+				if (!address.sameAs(here) && !address.sameAs(backUpServer)) {
+					// if this node is not the primary server, set it is back up
+					// server
+					backUpServer = address;
+					backUpNode = (GameNode) LocateRegistry.getRegistry(backUpServer.getHost(), backUpServer.getPort())
+							.lookup(backUpServer.getKey());
+					backUpNode.updateGame(new ServerMessage(theMaze));
+					backUpNode.becomeBackUp();
+					break;
+				}
+			}
+		} catch (NotBoundException | RemoteException e) {
+			e.printStackTrace();
+			System.out.println("Cannot locate the node, this should not happen if the list is up to date");
+		}
+	}
+
+	private void retrieveNodesListFromTracker() {
+		try {
+			Vector<Address> nodes = tracker.getNodes();
+			playersInGame.clear();
+			playersInGame.addAll(nodes);
+
+		} catch (RemoteException e) {
+			e.printStackTrace();
+			System.out.println("Tracker has stopped working");
+		}
+
+	}
+
+	/**
+	 * This is called from processing client message. At this point of time,
+	 * tracker should have the address of this new player already
+	 * 
+	 * @param playerNode
+	 * @throws RemoteException
+	 */
+	private void addNewPlayer(GameNode playerNode) throws RemoteException {
+		// tell the local maze
+		theMaze.addPlayer(playerNode.getAddress().getKey(), playerNode.getPlayer());
+		tracker.addNodeToRMIRegistry(playerNode.getAddress());
+		// tracker should have already known that this player joined game
+		// but we still update the list just to be safe
+		retrieveNodesListFromTracker();
+		// if this is primary server and player 2 has joined
+		if (playersInGame.size() == 2) {
+			backUpServer = playerNode.getAddress();
+			playerNode.becomeBackUp();
+		}
+
+		if (!gamePlaying)
+			this.startProcessingMessages();
+
+		if (theMaze.getPlayers().size() != playersInGame.size()) {
+			throw new InvalidParameterException("player size is inconsistent");
+		}
+
+	}
+	
 	@Override
 	public void ping() throws RemoteException {
 
 	}
 
-	private void joinGame(GameNode playerNode) throws RemoteException {
-		playersInGame.put(playerNode.getAddress().getKey(), playerNode.getAddress());
-		theMaze.addPlayer(playerNode.getAddress().getKey(), playerNode.getPlayer());
-		// tracker should have already known that this player joined game
-	}
+	/**
+	 * SERVER SIDE ENDS
+	 */
 
 	private GameNode findGameNode(Address address) {
 		try {
@@ -200,21 +316,29 @@ public class GameNodeImpl implements GameNode {
 			// in case the node is not there,
 			// (may have crashed,)
 			// we remove it from server
-			if (playersInGame.get(address.getKey()) != null) {
-				removePlayer(address.getKey());
-			}
+			removePlayer(address);
 		}
 		return null;
 	}
 
-	private void removePlayer(String playerKey) {
-		theMaze.removePlayer(playerKey);
-		playersInGame.remove(playerKey);
-		// TODO notify the tracker of player leaving
+	private void removePlayer(Address playerAddress) {
+		theMaze.removePlayer(playerAddress.getKey());
+		playersInGame.remove(playerAddress);
+		// notify the tracker of player leaving
+		try {
+			tracker.updateNodesList(playersInGame);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+			System.out.println("Tracker has stopped working");
+		}
 	}
 
+	/**
+	 * LOCAL STARTS
+	 */
+
 	@Override
-	public boolean updateGame(ServerMessage message) {
+	public boolean updateGame(ServerMessage message) throws RemoteException {
 		return messagesFromServer.offer(message);
 	}
 
@@ -222,17 +346,27 @@ public class GameNodeImpl implements GameNode {
 
 		@Override
 		public void run() {
-			// TODO Auto-generated method stub
-			ServerMessage nextMessage = messagesFromServer.poll();
-			if (nextMessage != null) {
-				updateMazeMessage(nextMessage);
+			while (true) {
+				try {
+					Thread.sleep(20);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				ServerMessage nextMessage = messagesFromServer.poll();
+				if (nextMessage != null) {
+					processMessageFromServer(nextMessage);
+				}
 			}
 		}
 	};
-	
-	private void updateMazeMessage(ServerMessage nextMessage) {
-		// TODO Auto-generated method stub
 
+	private void processMessageFromServer(ServerMessage nextMessage) {
+		// update the local maze
+		Maze serverMaze = nextMessage.getTheMaze();
+		theMaze.copyDataFrom(serverMaze);
+
+		// TODO notify the GUI of the new game state
 	}
 
 	@Override
@@ -244,10 +378,62 @@ public class GameNodeImpl implements GameNode {
 	public Player getPlayer() throws RemoteException {
 		return me;
 	}
-	
+
+	public void playerMadeAMove(PlayerAction action) {
+		ClientMessage message = new ClientMessage(here, action);
+		// tell the primary server
+		try {
+			GameNode primary = (GameNode) LocateRegistry.getRegistry(primaryServer.getHost(), primaryServer.getPort())
+					.lookup(primaryServer.getKey());
+			primary.enqueueNewMessage(message);
+			if (!primary.isPrimary()){
+				primary.becomePrimary();
+			}
+		} catch (RemoteException | NotBoundException e) {
+			// in the event that primary is down
+			e.printStackTrace();
+			try {
+				GameNode backUp = (GameNode) LocateRegistry.getRegistry(backUpServer.getHost(), backUpServer.getPort())
+						.lookup(backUpServer.getKey());
+				primaryServer = backUpServer;
+				backUp.becomePrimary();
+				backUp.enqueueNewMessage(message);
+			} catch (RemoteException | NotBoundException e1) {
+				// and the backUp also failed
+				e1.printStackTrace();
+				retrieveNodesListFromTracker();
+				primaryServer = playersInGame.get(0);
+				playerMadeAMove(action);
+			}
+
+		}
+	}
+
 	/**
-	 * LOCAL
-	 * ENDS
+	 * LOCAL ENDS
 	 */
+
+	public void closeGame() {
+		if (isPrimary()) {
+			// there will always be at least 2 players
+			if (playersInGame.size() >= 3) {
+				try {
+					GameNode backUp = (GameNode) LocateRegistry
+							.getRegistry(backUpServer.getHost(), backUpServer.getPort()).lookup(backUpServer.getKey());
+					primaryServer = backUpServer;
+					backUp.becomePrimary();
+					playerMadeAMove(PlayerAction.QUIT);
+				} catch (RemoteException | NotBoundException e) {
+					e.printStackTrace();
+				}
+			}
+		} else {
+			playerMadeAMove(PlayerAction.QUIT);
+		}
+		workerThread.interrupt();
+		gameThread.interrupt();
+		gamePlaying = false;
+		// TODO notify GUI
+	}
 
 }

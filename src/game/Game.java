@@ -69,6 +69,7 @@ public class Game {
 			
 			GameNodeImpl gameNode = new GameNodeImpl(tracker, players, tracker.getN(), tracker.getK(), address);
 			bindGameNodeToRmi(address, gameNode);
+			tracker.addNode(address);
 			
 			//TODO start the actual game GUI
 			

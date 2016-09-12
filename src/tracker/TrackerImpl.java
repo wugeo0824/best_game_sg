@@ -111,7 +111,7 @@ public class TrackerImpl extends UnicastRemoteObject implements Tracker {
 	}
 
 	@Override
-	public synchronized void addNodeToRMIRegistry(Address node) throws RemoteException{
+	public synchronized void addNode(Address node) throws RemoteException{
 
 		String nodeIP=node.getHost();
 		int nodePort=node.getPort();

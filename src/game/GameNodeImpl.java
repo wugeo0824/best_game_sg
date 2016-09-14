@@ -62,7 +62,7 @@ public class GameNodeImpl implements GameNode {
 			isPrimary = true;
 			theMaze.addPlayer(here.getKey(), me);
 			try {
-				tracker.addNodeToRMIRegistry(here);
+				tracker.addNode(here);
 			} catch (RemoteException e) {
 				// tracker failed
 				e.printStackTrace();
@@ -280,7 +280,7 @@ public class GameNodeImpl implements GameNode {
 	private void addNewPlayer(GameNode playerNode) throws RemoteException {
 		// tell the local maze
 		theMaze.addPlayer(playerNode.getAddress().getKey(), playerNode.getPlayer());
-		tracker.addNodeToRMIRegistry(playerNode.getAddress());
+		tracker.addNode(playerNode.getAddress());
 		// tracker should have already known that this player joined game
 		// but we still update the list just to be safe
 		retrieveNodesListFromTracker();

@@ -39,6 +39,7 @@ public class GameNodeImpl implements GameNode {
 	private Thread workerThread;
 	private LinkedBlockingQueue<ServerMessage> messagesFromServer;
 	private Thread gameThread;
+	private Thread pinThread;
 
 	public GameNodeImpl(Tracker tracker, Vector<Address> playerNameList, int size, int numberOfTreasures,
 			Address here) {
@@ -55,6 +56,7 @@ public class GameNodeImpl implements GameNode {
 
 		messagesFromServer = new LinkedBlockingQueue<ServerMessage>();
 		gameThread = new Thread(updateMazeRunnable);
+		pinThread = new Thread(pinPlayersRunnable);
 
 		// this node has not been added to the tracker yet
 		if (playerNameList.isEmpty()) {
@@ -85,15 +87,7 @@ public class GameNodeImpl implements GameNode {
 		// tell the primary server that i have joined
 		// and starts the game
 		if (playerNameList.size() >= 1) {
-			try {
-				GameNode primary = ((GameNode) LocateRegistry
-						.getRegistry(primaryServer.getHost(), primaryServer.getPort()).lookup(primaryServer.getKey()));
-				primary.enqueueNewMessage(new ClientMessage(here, PlayerAction.JOIN));
-
-			} catch (RemoteException | NotBoundException e) {
-				e.printStackTrace();
-				System.out.println("Game start failed. Primary Server has stopped working");
-			}
+			playerMadeAMove(PlayerAction.JOIN);
 		}
 		
 		startProcessingMessages();
@@ -107,6 +101,8 @@ public class GameNodeImpl implements GameNode {
 
 		workerThread.start();
 		gameThread.start();
+		if (isPrimary())
+			pinThread.start();
 		gamePlaying = true;
 	}
 
@@ -200,6 +196,9 @@ public class GameNodeImpl implements GameNode {
 		isBackUp = false;
 		primaryServer = here;
 		findNewBackUp();
+		
+		if (!pinThread.isAlive())
+			pinThread.start();
 	}
 
 	@Override
@@ -299,10 +298,48 @@ public class GameNodeImpl implements GameNode {
 
 	}
 	
-	@Override
-	public void ping() throws RemoteException {
+	/**
+	 * Regularly checks whether the players are still in game
+	 * The checking interval has been set to 10000ms => 10s
+	 */
+	private Runnable pinPlayersRunnable = new Runnable() {
 
-	}
+		@Override
+		public void run() {
+			while(true){
+				try {
+					Thread.sleep(10000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				retrieveNodesListFromTracker();
+				
+				if (isPrimary() && !playersInGame.get(0).sameAs(here)){
+					throw new InvalidParameterException("primary server is not the first node in the tracker list");
+				}
+				
+				if (!playersInGame.get(1).sameAs(backUpServer)){
+					throw new InvalidParameterException("backup server is not the second node in the tracker list");
+				}
+				
+				try {
+					LocateRegistry.getRegistry(backUpServer.getHost(), backUpServer.getPort()).lookup(backUpServer.getKey());
+				} catch (RemoteException | NotBoundException e) {
+					// in the event that back up server is no where to be found
+					System.out.println("BackUp Server has stopped working");
+					e.printStackTrace();
+					findNewBackUp();
+				}
+				
+				for (Address address:playersInGame){
+					findGameNode(address);
+				}
+			}
+		}
+		
+	};
 
 	/**
 	 * SERVER SIDE ENDS
@@ -432,6 +469,7 @@ public class GameNodeImpl implements GameNode {
 		}
 		workerThread.interrupt();
 		gameThread.interrupt();
+		pinThread.interrupt();
 		gamePlaying = false;
 		// TODO notify GUI
 	}

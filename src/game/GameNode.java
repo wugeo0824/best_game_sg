@@ -22,7 +22,7 @@ public interface GameNode extends Remote {
 	
 	void becomeBackUp() throws RemoteException;
 
-	void ping() throws RemoteException;
+	//void ping() throws RemoteException;
 	
 	boolean updateGame(ServerMessage message) throws RemoteException;
 

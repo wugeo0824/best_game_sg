@@ -14,7 +14,7 @@ public interface Tracker extends Remote {
 	
 	Vector<Address> getNodes() throws RemoteException;
 
-	void addNode(Address node) throws RemoteException;
+	void addNodeToRMIRegistry(Address node) throws RemoteException;
 
 	void updateNodesList(Vector<Address> updatedNodes) throws RemoteException;
 	

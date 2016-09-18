@@ -166,6 +166,10 @@ public class Maze implements Serializable {
 	private void consumeTreasure(Location location){
 		treasures.remove(location.getLocationId());
 	}
+	
+	public ConcurrentHashMap<String, Treasure> getTreasures() {
+		return treasures;
+	}
 
 	/**
 	 * TREASURES END

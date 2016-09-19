@@ -3,8 +3,8 @@ package gui;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,7 +23,7 @@ import model.Location;
 import model.Player;
 import model.Treasure;
 
-public class Window extends JFrame implements KeyListener {
+public class Window extends JFrame {
 	private static final long serialVersionUID = 1509090869849539876L;
 	
 	public int N; // the maze is an N-by-N grid
@@ -40,8 +40,6 @@ public class Window extends JFrame implements KeyListener {
 	private String[][] btnName;
 	public PlayerAction action;
 
-	private char key; // the keyboard input
-
 	public Window(int nGrid, int kTreasure, ConcurrentHashMap<String, Player> playersInfo, ConcurrentHashMap<String, Treasure> treasuresInfo) {
 		this.N = nGrid;
 		this.K = kTreasure;
@@ -49,8 +47,6 @@ public class Window extends JFrame implements KeyListener {
 		this.setLocationRelativeTo(null);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setVisible(true);
-
-		addKeyListener(this);
 
 		// Create panel p1 for the scores at the left part of the window
 		JPanel p1 = new JPanel();
@@ -80,6 +76,10 @@ public class Window extends JFrame implements KeyListener {
 		// add the two panels to the frame
 		add(p1, BorderLayout.WEST);
 		add(p2, BorderLayout.EAST);
+		
+		// add key listener
+		setFocusable(true);
+		addKeyListener(new MyKeyListener ());
 	}
 
 
@@ -169,38 +169,31 @@ public class Window extends JFrame implements KeyListener {
 		
 	}
 
-
-	/** Handle the key typed event from the text field. */
-	@Override
-	public void keyTyped(KeyEvent e) {
-		
-	}
-
-
-	@Override
-	public void keyPressed(KeyEvent e) {
-		key = e.getKeyChar();
-		if (key == KeyEvent.VK_1){
-			action = PlayerAction.MOVE_LEFT;
-		} else if (key == KeyEvent.VK_2){
-			action = PlayerAction.MOVE_DOWN;
-		} else if (key == KeyEvent.VK_3){
-			action = PlayerAction.MOVE_RIGHT;
-		} else if (key == KeyEvent.VK_4){
-			action = PlayerAction.MOVE_UP;
-		} else if (key == KeyEvent.VK_9){
-			action = PlayerAction.QUIT;
-		} else if (key == KeyEvent.VK_0){
-			action = PlayerAction.UPDATE;
+	/**
+	 * KEYEVENT
+	 */
+	class MyKeyListener extends KeyAdapter {
+		public void keyPressed(KeyEvent e) {
+			int key = e.getKeyCode();
+			if (key == KeyEvent.VK_1){
+				action = PlayerAction.MOVE_LEFT;
+			} else if (key == KeyEvent.VK_2){
+				action = PlayerAction.MOVE_DOWN;
+			} else if (key == KeyEvent.VK_3){
+				action = PlayerAction.MOVE_RIGHT;
+			} else if (key == KeyEvent.VK_4){
+				action = PlayerAction.MOVE_UP;
+			} else if (key == KeyEvent.VK_9){
+				action = PlayerAction.QUIT;
+			} else if (key == KeyEvent.VK_0){
+				action = PlayerAction.STAY;
+			}
+			return;			
 		}
-		return;
-	}
-
-
-	@Override
-	public void keyReleased(KeyEvent e) {
+		
 		
 	}
 	
+
 
 }

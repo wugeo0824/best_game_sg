@@ -474,4 +474,10 @@ public class GameNodeImpl implements GameNode {
 		// TODO notify GUI
 	}
 
+	@Override
+	public Maze getMaze() throws RemoteException {
+	
+		return theMaze;
+	}
+
 }

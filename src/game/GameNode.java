@@ -6,6 +6,7 @@ import java.rmi.RemoteException;
 import message.ClientMessage;
 import message.ServerMessage;
 import model.Address;
+import model.Maze;
 import model.Player;
 
 public interface GameNode extends Remote {
@@ -29,6 +30,8 @@ public interface GameNode extends Remote {
 	Address getAddress() throws RemoteException;
 
 	Player getPlayer() throws RemoteException;
+	
+	Maze getMaze() throws RemoteException;
 
 	//boolean joinGame(Address newPlayerAddress) throws RemoteException;
 

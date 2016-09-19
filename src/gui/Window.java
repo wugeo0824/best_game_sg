@@ -191,7 +191,7 @@ public class Window extends JFrame implements KeyListener {
 		} else if (key == KeyEvent.VK_9){
 			action = PlayerAction.QUIT;
 		} else if (key == KeyEvent.VK_0){
-			action = PlayerAction.UPDATE;
+			action = PlayerAction.STAY;
 		}
 		return;
 	}

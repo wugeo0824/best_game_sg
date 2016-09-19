@@ -9,6 +9,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.Vector;
 
+import gui.Window;
 import model.Address;
 import tracker.Tracker;
 import utilities.Constants;
@@ -70,7 +71,9 @@ public class Game {
 			GameNodeImpl gameNode = new GameNodeImpl(tracker, players, tracker.getN(), tracker.getK(), address);
 			bindGameNodeToRmi(address, gameNode);
 
-			//TODO start the actual game GUI
+			// start the actual game GUI
+			Window win = new Window(15, 10, gameNode.getMaze().getPlayers(), gameNode.getMaze().getTreasures());
+			win.setWTitle(players);
 			
 		} catch (RemoteException | UnknownHostException e) {
 			System.out.println("Tracker finding failed: " + e.getLocalizedMessage());

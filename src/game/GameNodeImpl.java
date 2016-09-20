@@ -1,5 +1,6 @@
 package game;
 
+import java.io.Serializable;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -15,7 +16,12 @@ import model.Maze;
 import model.Player;
 import tracker.Tracker;
 
-public class GameNodeImpl implements GameNode {
+public class GameNodeImpl implements GameNode, Serializable {
+
+	/**
+	 * Generated ID
+	 */
+	private static final long serialVersionUID = -206482596196783156L;
 
 	private final static int MESSAGE_SIZE_LIMIT = 20;
 
@@ -46,6 +52,7 @@ public class GameNodeImpl implements GameNode {
 
 		this.tracker = tracker;
 		this.here = here;
+		me = new Player(here.getUserName(), 0, null, here);
 
 		theMaze = new Maze(size, numberOfTreasures);
 		messagesFromClient = new LinkedBlockingQueue<ClientMessage>(MESSAGE_SIZE_LIMIT);
@@ -57,20 +64,6 @@ public class GameNodeImpl implements GameNode {
 		messagesFromServer = new LinkedBlockingQueue<ServerMessage>();
 		gameThread = new Thread(updateMazeRunnable);
 		pinThread = new Thread(pinPlayersRunnable);
-
-		// this node has not been added to the tracker yet
-		if (playerNameList.isEmpty()) {
-			primaryServer = here;
-			isPrimary = true;
-			theMaze.addPlayer(here.getKey(), me);
-			try {
-				tracker.addNode(here);
-			} catch (RemoteException e) {
-				// tracker failed
-				e.printStackTrace();
-				System.out.println("Primary server start failed. tracker has stopped working");
-			}
-		}
 
 		if (playerNameList.size() == 1) {
 			primaryServer = playerNameList.get(0);
@@ -88,9 +81,25 @@ public class GameNodeImpl implements GameNode {
 		// and starts the game
 		if (playerNameList.size() >= 1) {
 			playerMadeAMove(PlayerAction.JOIN);
+			startProcessingMessages();
 		}
 		
-		startProcessingMessages();
+		// this node has not been added to the tracker yet
+		if (playerNameList.isEmpty()) {
+			primaryServer = here;
+			isPrimary = true;
+			theMaze.addPlayer(here.getKey(), me);
+			try {
+				tracker.addNode(here);
+			} catch (RemoteException e) {
+				// tracker failed
+				e.printStackTrace();
+				System.out.println("Primary server start failed. tracker has stopped working");
+			}
+		}
+		
+		System.out.println("Successfully started player at [" + here.getKey() +"], current number of players are "+ playersInGame.size());
+		
 	}
 
 	@Override

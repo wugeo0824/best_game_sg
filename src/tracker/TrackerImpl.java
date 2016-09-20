@@ -75,24 +75,24 @@ public class TrackerImpl extends UnicastRemoteObject implements Tracker {
 
 		}
 		
-		// This part is for debugging
-		// Every 10s print out all node names stored in Tracker
-		TimerTask task = (new TimerTask(){
-			@Override
-			public void run() {
-				try {
-					for(Address printNode : stub.getNodes()){
-						System.out.println("Nodes: "+printNode.getKey());
-					}
-					System.out.println("N: "+N+"   K: "+K);
-				} catch (RemoteException e) {
-					e.printStackTrace();
-				}
-			}
-		});
-		
-		Timer timer = new Timer();
-		timer.scheduleAtFixedRate(task, 0, 10000);
+//		// This part is for debugging
+//		// Every 10s print out all node names stored in Tracker
+//		TimerTask task = (new TimerTask(){
+//			@Override
+//			public void run() {
+//				try {
+//					for(Address printNode : stub.getNodes()){
+//						System.out.println("Nodes: "+printNode.getKey());
+//					}
+//					System.out.println("N: "+N+"   K: "+K);
+//				} catch (RemoteException e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		});
+//		
+//		Timer timer = new Timer();
+//		timer.scheduleAtFixedRate(task, 0, 10000);
 	}
 
 	@Override

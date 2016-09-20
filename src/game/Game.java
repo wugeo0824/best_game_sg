@@ -72,7 +72,7 @@ public class Game {
 			bindGameNodeToRmi(address, gameNode);
 
 			// start the actual game GUI
-			Window win = new Window(15, 10, gameNode.getMaze().getPlayers(), gameNode.getMaze().getTreasures());
+			Window win = new Window(tracker.getN(), tracker.getK(), 10, gameNode.getMaze().getPlayers(), gameNode.getMaze().getTreasures());
 			win.setWTitle(players);
 			
 		} catch (RemoteException | UnknownHostException e) {

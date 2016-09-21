@@ -9,7 +9,6 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.Vector;
 
-import gui.Window;
 import model.Address;
 import tracker.Tracker;
 import utilities.Constants;
@@ -25,13 +24,21 @@ public class Game {
 	static String userName;
 	
 	public static void main(String[] args) {
+		if (args.length != 3) {
+			System.out.println("Game start failed. please type java Game [ip-address] [port-number] [player-id]");
+			System.exit(0);
+		}
+		// Parse all arguments
+		String ip = args[0];
+		int port = Integer.parseInt(args[1]);
+		userName = args[2];	
 		
-		// ask for User Name
-		
-		String ip = "";
-		int port = 0;
-		userName = "";
-		
+		// we are ignoring user's input, since we use the local host for tracker
+		try {
+			ip = InetAddress.getLocalHost().getHostAddress();
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
 		// contact tracker
 		Tracker tracker = contactTracker(ip, port);
 		
@@ -68,13 +75,11 @@ public class Game {
 			int port = tracker.getPort();
 			Address address = new Address(ip, port, userName);
 			
-			GameNodeImpl gameNode = new GameNodeImpl(tracker, players, tracker.getN(), tracker.getK(), address);
+			System.out.println("Game starting for player: " + userName + " players in game: " + players.size());
+			GameNode gameNode = new GameNodeImpl(tracker, players, tracker.getN(), tracker.getK(), address);
 			bindGameNodeToRmi(address, gameNode);
-
-			// start the actual game GUI
-			Window win = new Window(tracker.getN(), tracker.getK(), 10, gameNode.getMaze().getPlayers(), gameNode.getMaze().getTreasures());
-			win.setWTitle(players);
-			
+			gameNode.init();
+		
 		} catch (RemoteException | UnknownHostException e) {
 			System.out.println("Tracker finding failed: " + e.getLocalizedMessage());
 			e.printStackTrace();
@@ -82,7 +87,7 @@ public class Game {
 		
 	}
 	
-	private static void bindGameNodeToRmi(Address address, GameNodeImpl gameNode){
+	private static void bindGameNodeToRmi(Address address, GameNode gameNode){
 		Registry registry;
 		try {
 			registry = LocateRegistry.getRegistry(address.getHost(), address.getPort());

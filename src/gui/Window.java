@@ -5,21 +5,21 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.rmi.RemoteException;
+import java.util.Iterator;
 import java.util.Map;
-import java.util.Vector;
-import java.util.concurrent.ConcurrentHashMap;
-
+import java.util.Set;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
+import game.GameNodeImpl;
 import message.PlayerAction;
-import model.Address;
 import model.Location;
+import model.Maze;
 import model.Player;
 import model.Treasure;
 
@@ -34,25 +34,51 @@ public class Window extends JFrame {
 	private String server; // part of the title, identify primary/backup server
 	private String status = "[waiting]"; // part of the title, waiting is the default value of game status
 
-	private Object[][] playerData = null; 
+	private Object[][] playerData; 
 	private Player[] playerArray;
 	private Treasure[] treasureArray;
 	private String[][] btnName;
-	public PlayerAction action;
+	private GameNodeImpl localGame;
 
-	public Window(int nGrid, int kTreasure, ConcurrentHashMap<String, Player> playersInfo, ConcurrentHashMap<String, Treasure> treasuresInfo) {
-		this.N = nGrid;
-		this.K = kTreasure;
+	public Window(GameNodeImpl localGame) throws RemoteException {
+		Maze maze = localGame.getMaze();
+		this.N = maze.getSize();
+		this.K = maze.getNumberOfTreasures();
 		this.setSize(910, 750);
 		this.setLocationRelativeTo(null);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setVisible(true);
+		this.localGame = localGame;
+		this.username = localGame.getPlayer().getName();
 
+		// Initialize the variables
+		btnName = new String[N][N];
+		
+		Set<Map.Entry<String, Player>> playerInfoSet = maze.getPlayers().entrySet();
+		playerArray = new Player[playerInfoSet.size()];
+		int i = 0;
+		Iterator<Map.Entry<String, Player>> pl = playerInfoSet.iterator();
+		while (pl.hasNext()){
+			playerArray[i] = pl.next().getValue();
+			i++;
+		}
+		
+		Set<Map.Entry<String, Treasure>> treasureSet = maze.getTreasures().entrySet();
+		treasureArray = new Treasure[treasureSet.size()];
+		i = 0;
+		Iterator<Map.Entry<String, Treasure>> tr = treasureSet.iterator();
+		while (tr.hasNext()){
+			treasureArray[i] = tr.next().getValue();
+			i++;
+		}
+		
+		playerData = new Object[playerArray.length][2];
+		
 		// Create panel p1 for the scores at the left part of the window
 		JPanel p1 = new JPanel();
 		String[] columnNames = { "Player", "Score" }; // title of the table
 		
-		getAllPlayerData(playersInfo);		
+		getAllPlayerData();		
 		JTable playerTable = new JTable(playerData, columnNames);
 		JScrollPane scrollPane = new JScrollPane(playerTable);
 		scrollPane.setPreferredSize(new Dimension(150, 700));
@@ -62,7 +88,7 @@ public class Window extends JFrame {
 		JPanel p2 = new JPanel();
 		p2.setLayout(new GridLayout(N, N));
 		
-		getAllPositions(playersInfo, treasuresInfo);
+		getAllPositions();
 		for (int r = 0; r < N; r++) {
 			for (int c = 0; c < N; c++) {
 				JButton btn = new JButton();
@@ -80,61 +106,57 @@ public class Window extends JFrame {
 		// add key listener
 		setFocusable(true);
 		addKeyListener(new MyKeyListener ());
+		
+		// update title
+		setWTitle();
 	}
 
 
 	/**
 	 * WINDOW TITLE PART
 	 */
-	private void getUsername() {
-		username = JOptionPane.showInputDialog(null, "Welcome!\n" + "Please setup an username first.", "Maze",
-				JOptionPane.PLAIN_MESSAGE);
-	}
+//	private void getUsername() {
+//		username = JOptionPane.showInputDialog(null, "Welcome!\n" + "Please setup an username first.", "Maze",
+//				JOptionPane.PLAIN_MESSAGE);
+//	}
 
-	private void getServer(Vector<Address> playersList) {
-		if (username == playersList.get(0).getUserName()) {
+	private void getServer() {
+		if (localGame.isPrimary()) {
 			server = "(primary server)";
-		} else if (username == playersList.get(1).getUserName()) {
+		} else if (localGame.isBackUp()) {
 			server = "(backup server)";
 		} else {
-			server = null;
+			server = "";
 		}
 
 	}
 
-	private void getStatus(Vector<Address> playersList) {
-		if (playersList.size() > 1) {
+	private void getStatus() {
+		if (playerArray.length > 1) {
 			status = "[started]";
 		}
 	}
 
-	public String getWTitle(Vector<Address> playersList) {
-		getUsername();
-		getStatus(playersList);
-		getServer(playersList);
+	public String getWTitle() {
+		//getUsername();
+		getStatus();
+		getServer();
 
 		title = username + server + status;
 		return title;
 	}
 	
-	public void setWTitle(Vector<Address> playersList){
-		this.setTitle(getWTitle(playersList));
+	public void setWTitle(){
+		this.setTitle(getWTitle());
 	}
 	
 
 	/**
 	 * WINDOW LEFT PART
 	 */
-	public void getAllPlayerData(ConcurrentHashMap<String, Player> playersInfo) {
+	public void getAllPlayerData() {
 		// set players id and score in JTable
-		int size = 0;
-
-		for (Map.Entry<String, Player> list : playersInfo.entrySet()) {
-			playerArray[size] = list.getValue();
-			size++;
-		}
-
-		for (int k = 0; k < size; k++) {
+		for (int k = 0; k < playerArray.length; k++) {
 			playerData[k][0] = playerArray[k].getName();
 			playerData[k][1] = playerArray[k].getCurrentScore();
 		}
@@ -144,29 +166,18 @@ public class Window extends JFrame {
 	/**
 	 * WINDOW RIGHT PART
 	 */
-	public void getAllPositions(ConcurrentHashMap<String, Player> playersInfo, ConcurrentHashMap<String, Treasure> treasuresInfo){
+	public void getAllPositions(){
 		// set players positions as players names
-		int sizeP = 0;
-		for (Map.Entry<String, Player> listP : playersInfo.entrySet()) {
-			playerArray[sizeP] = listP.getValue();
-			sizeP++;
-		}
-		for (int k = 0; k < sizeP; k++) {
+		for (int k = 0; k < playerArray.length; k++) {
 			Location locP = playerArray[k].getCurrentLocation();
 			btnName[locP.getLocationX()][locP.getLocationY()] = playerArray[k].getName();
 		}
 		
-		// set treasures positions as "*"
-		int sizeT = 0;
-		for (Map.Entry<String, Treasure> listT : treasuresInfo.entrySet()) {
-			treasureArray[sizeT] = listT.getValue();
-			sizeT++;
-		}
-		for (int k = 0; k < sizeT; k++) {
+		// set treasures positions as "*"	
+		for (int k = 0; k < treasureArray.length; k++) {
 			Location locT = treasureArray[k].getLocation();
 			btnName[locT.getLocationX()][locT.getLocationY()] = "*";
 		}
-		
 	}
 
 	/**
@@ -175,6 +186,7 @@ public class Window extends JFrame {
 	class MyKeyListener extends KeyAdapter {
 		public void keyPressed(KeyEvent e) {
 			int key = e.getKeyCode();
+			PlayerAction action = null;
 			if (key == KeyEvent.VK_1){
 				action = PlayerAction.MOVE_LEFT;
 			} else if (key == KeyEvent.VK_2){
@@ -188,12 +200,26 @@ public class Window extends JFrame {
 			} else if (key == KeyEvent.VK_0){
 				action = PlayerAction.STAY;
 			}
+			processKeyInput(action);
 			return;			
 		}
-		
-		
 	}
 	
+	private void processKeyInput(PlayerAction action) {
+		if (action == null){
+			return;
+		}
+		
+		localGame.playerMadeAMove(action);
+	}
+	
+	public void updateGame(Maze newMaze){
+		//TODO update the GUI according to the maze
+	}
+	
+	public void close(){
+		//TODO when user request to quit the game
+	}
 
 
 }

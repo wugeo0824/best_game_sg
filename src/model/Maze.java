@@ -2,8 +2,8 @@ package model;
 
 import java.io.Serializable;
 import java.security.InvalidParameterException;
+import java.util.HashMap;
 import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
 
 import message.PlayerAction;
 
@@ -25,8 +25,8 @@ public class Maze implements Serializable {
 	private int size;
 	private int numberOfTreasures;
 
-	private ConcurrentHashMap<String, Player> players;
-	private ConcurrentHashMap<String, Treasure> treasures;
+	private HashMap<String, Player> players;
+	private HashMap<String, Treasure> treasures;
 
 	private Random rand;
 
@@ -35,8 +35,8 @@ public class Maze implements Serializable {
 		this.numberOfTreasures = numberOfTreasures;
 
 		rand = new Random();
-		players = new ConcurrentHashMap<String, Player>();
-		treasures = new ConcurrentHashMap<String, Treasure>(numberOfTreasures);
+		players = new HashMap<String, Player>();
+		treasures = new HashMap<String, Treasure>(numberOfTreasures);
 	}
 
 	public void initialize() {
@@ -73,7 +73,7 @@ public class Maze implements Serializable {
 		}
 	}
 
-	public ConcurrentHashMap<String, Player> getPlayers() {
+	public HashMap<String, Player> getPlayers() {
 		return players;
 	}
 
@@ -167,7 +167,7 @@ public class Maze implements Serializable {
 		treasures.remove(location.getLocationId());
 	}
 	
-	public ConcurrentHashMap<String, Treasure> getTreasures() {
+	public HashMap<String, Treasure> getTreasures() {
 		return treasures;
 	}
 

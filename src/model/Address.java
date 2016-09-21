@@ -18,7 +18,7 @@ public class Address implements Serializable{
 		this.host = host;
 		this.port = port;
 		this.userName = userName;
-		key = "host" + host + "port" + port + "user "+ userName;
+		key = userName + host + port;
 	}
 
 	public String getHost() {

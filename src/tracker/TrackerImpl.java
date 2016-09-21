@@ -15,7 +15,6 @@ import java.util.Vector;
 
 import model.Address;
 import utilities.Constants;
-//import muo.Node;
 
 /**
  * Assuming that we have a RMI registry running on the same machine with Tracker
@@ -75,24 +74,24 @@ public class TrackerImpl extends UnicastRemoteObject implements Tracker {
 
 		}
 		
-//		// This part is for debugging
-//		// Every 10s print out all node names stored in Tracker
-//		TimerTask task = (new TimerTask(){
-//			@Override
-//			public void run() {
-//				try {
-//					for(Address printNode : stub.getNodes()){
-//						System.out.println("Nodes: "+printNode.getKey());
-//					}
-//					System.out.println("N: "+N+"   K: "+K);
-//				} catch (RemoteException e) {
-//					e.printStackTrace();
-//				}
-//			}
-//		});
-//		
-//		Timer timer = new Timer();
-//		timer.scheduleAtFixedRate(task, 0, 10000);
+		// This part is for debugging
+		// Every 10s print out all node names stored in Tracker
+		TimerTask task = (new TimerTask(){
+			@Override
+			public void run() {
+				try {
+					for(Address printNode : stub.getNodes()){
+						System.out.println("Nodes: "+printNode.getKey());
+					}
+					System.out.println("N: "+N+"   K: "+K);
+				} catch (RemoteException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		
+		Timer timer = new Timer();
+		timer.scheduleAtFixedRate(task, 0, 10000);
 	}
 
 	@Override
@@ -112,18 +111,11 @@ public class TrackerImpl extends UnicastRemoteObject implements Tracker {
 
 	@Override
 	public synchronized void addNode(Address node) throws RemoteException{
-
-		String nodeIP=node.getHost();
-		int nodePort=node.getPort();
-		String nodeInfo=node.getKey();
-
-//		Registry registry = LocateRegistry.getRegistry(port);
-//		registry.bind(nodeInfo, node);
-
-		System.out.println("Successfully register node [" + nodeInfo +nodeIP+nodePort+ "]");
-
 		// Add to list of game node names kept by Tracker
 		nodes.add(node);
+		
+		System.out.println("Successfully register node [" + node.getKey() + "]");
+
 	}
 
 	@Override

@@ -1,13 +1,14 @@
 package game;
 
-import java.io.Serializable;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
+import java.rmi.server.UnicastRemoteObject;
 import java.security.InvalidParameterException;
 import java.util.Vector;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import gui.Window;
 import message.ClientMessage;
 import message.PlayerAction;
 import message.ServerMessage;
@@ -16,7 +17,7 @@ import model.Maze;
 import model.Player;
 import tracker.Tracker;
 
-public class GameNodeImpl implements GameNode, Serializable {
+public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 
 	/**
 	 * Generated ID
@@ -31,8 +32,6 @@ public class GameNodeImpl implements GameNode, Serializable {
 	private boolean isPrimary = false;
 	private boolean isBackUp = false;
 
-	private boolean gamePlaying = false;
-
 	private Vector<Address> playersInGame;
 
 	private Tracker tracker;
@@ -46,9 +45,11 @@ public class GameNodeImpl implements GameNode, Serializable {
 	private LinkedBlockingQueue<ServerMessage> messagesFromServer;
 	private Thread gameThread;
 	private Thread pinThread;
+	
+	private Window gameWindow;
 
 	public GameNodeImpl(Tracker tracker, Vector<Address> playerNameList, int size, int numberOfTreasures,
-			Address here) {
+			Address here) throws RemoteException{
 
 		this.tracker = tracker;
 		this.here = here;
@@ -69,50 +70,45 @@ public class GameNodeImpl implements GameNode, Serializable {
 			primaryServer = playerNameList.get(0);
 			backUpServer = here;
 			isBackUp = true;
+			System.out.println("Primary server at " + primaryServer.getKey());
 		}
 
 		if (playerNameList.size() >= 2) {
 			primaryServer = playerNameList.get(0);
 			backUpServer = playerNameList.get(1);
 		}
+		
+	}
+	
+	public void init() throws RemoteException{
+		startProcessingMessages();
 
 		// if this is not the primary server
 		// tell the primary server that i have joined
 		// and starts the game
-		if (playerNameList.size() >= 1) {
-			playerMadeAMove(PlayerAction.JOIN);
-			startProcessingMessages();
+		if (playersInGame.size() >= 1) {
+			this.playerMadeAMove(PlayerAction.JOIN);
 		}
 		
 		// this node has not been added to the tracker yet
-		if (playerNameList.isEmpty()) {
+		if (playersInGame.isEmpty()) {
 			primaryServer = here;
 			isPrimary = true;
-			theMaze.addPlayer(here.getKey(), me);
-			try {
-				tracker.addNode(here);
-			} catch (RemoteException e) {
-				// tracker failed
-				e.printStackTrace();
-				System.out.println("Primary server start failed. tracker has stopped working");
-			}
+			theMaze.initialize();
+			addNewPlayer(this);
+			
+			// start the actual game GUI
+			gameWindow = new Window(this);
 		}
 		
-		System.out.println("Successfully started player at [" + here.getKey() +"], current number of players are "+ playersInGame.size());
-		
+		System.out.println("Successfully started player at [" + here.getKey() +"] with number of players " + playersInGame.size());
 	}
 
-	@Override
 	public void startProcessingMessages() {
-		if (primaryServer == null || backUpServer == null) {
-			throw new InvalidParameterException("Primary server address is " + (primaryServer == null));
-		}
-
 		workerThread.start();
 		gameThread.start();
 		if (isPrimary())
 			pinThread.start();
-		gamePlaying = true;
 	}
 
 	/**
@@ -127,6 +123,7 @@ public class GameNodeImpl implements GameNode, Serializable {
 
 	@Override
 	public boolean enqueueNewMessage(ClientMessage message) throws RemoteException {
+		System.out.println("Got message: " + message.toString());
 		return messagesFromClient.offer(message);
 	}
 
@@ -164,6 +161,7 @@ public class GameNodeImpl implements GameNode, Serializable {
 		case JOIN:
 			try {
 				addNewPlayer(playerNode);
+				tellBackUpAndCallingNodesTheNewGameState(target, playerNode);
 			} catch (RemoteException e) {
 				e.printStackTrace();
 				removePlayer(target);
@@ -175,20 +173,29 @@ public class GameNodeImpl implements GameNode, Serializable {
 		default:
 			// MOVE_UP, LEFT, RIGHT, DOWN, STAY
 			theMaze.movePlayer(target.getKey(), action);
+			tellBackUpAndCallingNodesTheNewGameState(target, playerNode);
 			break;
 		}
-
+		
+		System.out.println("Processed message: " + message.toString());
+		
+	}
+	
+	private void tellBackUpAndCallingNodesTheNewGameState(Address target, GameNode callingNode){
 		// update the calling player node
 		try {
-			playerNode.updateGame(new ServerMessage(theMaze));
+			callingNode.updateGame(new ServerMessage(theMaze));
 			
 			// update the back up server
-			if (!playerNode.getAddress().sameAs(backUpServer))
+			if (!callingNode.getAddress().sameAs(backUpServer))
 				updateBackUpServer();
 		} catch (RemoteException e) {
 			e.printStackTrace();
 			removePlayer(target);
 		}
+		
+		// update the local GUI (this is for primary server)
+		gameWindow.updateGame(theMaze);
 	}
 
 	public boolean isPrimary() {
@@ -296,10 +303,11 @@ public class GameNodeImpl implements GameNode, Serializable {
 		if (playersInGame.size() == 2) {
 			backUpServer = playerNode.getAddress();
 			playerNode.becomeBackUp();
+			System.out.println(playerNode.getAddress().getUserName() + " is now back up");
 		}
 
-		if (!gamePlaying)
-			this.startProcessingMessages();
+//		if (!gamePlaying && playersInGame.size() >= 2)
+//			this.startProcessingMessages();
 
 		if (theMaze.getPlayers().size() != playersInGame.size()) {
 			throw new InvalidParameterException("player size is inconsistent");
@@ -377,6 +385,11 @@ public class GameNodeImpl implements GameNode, Serializable {
 			e.printStackTrace();
 			System.out.println("Tracker has stopped working");
 		}
+		
+		updateBackUpServer();
+		
+		// update the local GUI (this is for primary server)
+		gameWindow.updateGame(theMaze);
 	}
 
 	/**
@@ -412,7 +425,18 @@ public class GameNodeImpl implements GameNode, Serializable {
 		Maze serverMaze = nextMessage.getTheMaze();
 		theMaze.copyDataFrom(serverMaze);
 
-		// TODO notify the GUI of the new game state
+		// notify the GUI of the new game state (this is for nodes other than primary server)
+		if (gameWindow == null){
+			// start the actual game GUI
+			try {
+				gameWindow = new Window(this);
+			} catch (RemoteException e) {
+				// error connecting to the local node
+				e.printStackTrace();
+				System.out.println("error connecting to the local node");
+			}
+		}
+		gameWindow.updateGame(theMaze);
 	}
 
 	@Override
@@ -427,6 +451,7 @@ public class GameNodeImpl implements GameNode, Serializable {
 
 	public void playerMadeAMove(PlayerAction action) {
 		ClientMessage message = new ClientMessage(here, action);
+		System.out.println(message.toString());
 		// tell the primary server
 		try {
 			GameNode primary = (GameNode) LocateRegistry.getRegistry(primaryServer.getHost(), primaryServer.getPort())
@@ -479,8 +504,8 @@ public class GameNodeImpl implements GameNode, Serializable {
 		workerThread.interrupt();
 		gameThread.interrupt();
 		pinThread.interrupt();
-		gamePlaying = false;
-		// TODO notify GUI
+		// notify GUI
+		gameWindow.close();
 	}
 
 	@Override

@@ -11,7 +11,9 @@ import model.Player;
 
 public interface GameNode extends Remote {
 
-	void startProcessingMessages() throws RemoteException;
+	//void startProcessingMessages() throws RemoteException;
+	
+	void init() throws RemoteException;
 
 	boolean enqueueNewMessage(ClientMessage message) throws RemoteException;
 

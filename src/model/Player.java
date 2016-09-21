@@ -2,7 +2,7 @@ package model;
 
 import java.io.Serializable;
 
-public class Player implements Serializable {
+public final class Player implements Serializable {
 
 	/**
 	 * 

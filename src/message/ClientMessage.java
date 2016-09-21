@@ -1,10 +1,15 @@
 package message;
 
 import java.io.Serializable;
-
 import model.Address;
 
-public class ClientMessage implements Serializable {
+//public interface ClientMessage extends Remote {
+//
+//	public PlayerAction getPlayerAction();
+//
+//	public Address getTargetAddress();
+//}
+public final class ClientMessage implements Serializable{
 
 	/**
 	 * Unique ID for serialization
@@ -15,7 +20,7 @@ public class ClientMessage implements Serializable {
 	private Address targetAddress;
 
 	public ClientMessage(Address address, PlayerAction playerAction) {
-		super();
+		this.targetAddress = address;
 		this.playerAction = playerAction;
 	}
 
@@ -27,4 +32,9 @@ public class ClientMessage implements Serializable {
 		return targetAddress;
 	}
 
+	@Override
+	public String toString() {
+		return "player " + targetAddress.getUserName() + " want to " + playerAction.toString();
+		
+	}
 }

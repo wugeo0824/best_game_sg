@@ -210,6 +210,11 @@ public class Window extends JFrame {
 			return;
 		}
 		
+		if (action == PlayerAction.QUIT){
+			localGame.closeGame();
+			return;
+		}
+			
 		localGame.playerMadeAMove(action);
 	}
 	

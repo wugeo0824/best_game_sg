@@ -22,7 +22,7 @@ import utilities.Constants;
 public class Game {
 
 	static String userName;
-	
+
 	public static void main(String[] args) {
 		if (args.length != 3) {
 			System.out.println("Game start failed. please type java Game [ip-address] [port-number] [player-id]");
@@ -31,8 +31,8 @@ public class Game {
 		// Parse all arguments
 		String ip = args[0];
 		int port = Integer.parseInt(args[1]);
-		userName = args[2];	
-		
+		userName = args[2];
+
 		// we are ignoring user's input, since we use the local host for tracker
 		try {
 			ip = InetAddress.getLocalHost().getHostAddress();
@@ -41,53 +41,60 @@ public class Game {
 		}
 		// contact tracker
 		Tracker tracker = contactTracker(ip, port);
-		
+
 		// create the game
 		createNewGame(tracker);
 	}
-	
+
 	private static Tracker contactTracker(String ipAddress, int port) {
 		Registry registry = null;
-		
+
 		try {
 			registry = LocateRegistry.getRegistry(ipAddress, port);
 			Tracker tracker = (Tracker) registry.lookup(Constants.TRACKER_NAME);
-			
+
 			return tracker;
-			
+
 		} catch (RemoteException e) {
 			System.out.println("Tracker finding failed: " + e.getLocalizedMessage());
 		} catch (NotBoundException e) {
 			e.printStackTrace();
 			System.out.println("Please start tracker first");
 		}
-		
+
 		return null;
 	}
-	
+
 	private static void createNewGame(Tracker tracker) {
-		
+
 		Vector<Address> players = null;
-		
+
 		try {
 			players = tracker.getNodes();
 			String ip = InetAddress.getLocalHost().getHostAddress();
 			int port = tracker.getPort();
 			Address address = new Address(ip, port, userName);
 			
+			for (Address existingPlayer:players){
+				if (existingPlayer.sameAs(address)){
+					System.out.println("Player ID " + userName + " has already exsited");
+					return;
+				}
+			}
+
 			System.out.println("Game starting for player: " + userName + " players in game: " + players.size());
 			GameNode gameNode = new GameNodeImpl(tracker, players, tracker.getN(), tracker.getK(), address);
 			bindGameNodeToRmi(address, gameNode);
 			gameNode.init();
-		
+
 		} catch (RemoteException | UnknownHostException e) {
 			System.out.println("Tracker finding failed: " + e.getLocalizedMessage());
 			e.printStackTrace();
 		}
-		
+
 	}
-	
-	private static void bindGameNodeToRmi(Address address, GameNode gameNode){
+
+	private static void bindGameNodeToRmi(Address address, GameNode gameNode) {
 		Registry registry;
 		try {
 			registry = LocateRegistry.getRegistry(address.getHost(), address.getPort());
@@ -99,6 +106,6 @@ public class Game {
 			e.printStackTrace();
 			System.out.println("Player with such user name has already existed in game");
 		}
-		
+
 	}
 }

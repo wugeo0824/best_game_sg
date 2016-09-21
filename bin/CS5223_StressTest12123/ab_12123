@@ -1,0 +1,6 @@
+Game starting for player: ab players in game: 0
+Exception in thread "main" java.security.InvalidParameterException: player size is inconsistent
+	at game.GameNodeImpl.addNewPlayer(GameNodeImpl.java:313)
+	at game.GameNodeImpl.init(GameNodeImpl.java:98)
+	at game.Game.createNewGame(Game.java:88)
+	at game.Game.main(Game.java:46)

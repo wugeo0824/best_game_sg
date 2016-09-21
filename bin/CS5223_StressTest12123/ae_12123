@@ -1,0 +1,11 @@
+Game starting for player: ae players in game: 0
+Successfully started player at [ae10.0.1.631099] with number of players 1
+Got message: player af want to JOIN
+Exception in thread "Thread-1" java.security.InvalidParameterException: player size is inconsistent
+	at game.GameNodeImpl.addNewPlayer(GameNodeImpl.java:313)
+	at game.GameNodeImpl.processMessageFromClient(GameNodeImpl.java:163)
+	at game.GameNodeImpl.access$1(GameNodeImpl.java:149)
+	at game.GameNodeImpl$1.run(GameNodeImpl.java:142)
+	at java.lang.Thread.run(Thread.java:745)
+Got message: player ah want to JOIN
+Got message: player ai want to JOIN

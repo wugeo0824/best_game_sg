@@ -450,6 +450,7 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 	}
 
 	public void playerMadeAMove(PlayerAction action) {
+			
 		ClientMessage message = new ClientMessage(here, action);
 		System.out.println(message.toString());
 		// tell the primary server
@@ -487,7 +488,7 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 	public void closeGame() {
 		if (isPrimary()) {
 			// there will always be at least 2 players
-			if (playersInGame.size() >= 3) {
+			if (playersInGame.size() > 2) {
 				try {
 					GameNode backUp = (GameNode) LocateRegistry
 							.getRegistry(backUpServer.getHost(), backUpServer.getPort()).lookup(backUpServer.getKey());
@@ -506,6 +507,8 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 		pinThread.interrupt();
 		// notify GUI
 		gameWindow.close();
+		
+		System.exit(0);
 	}
 
 	@Override

@@ -43,7 +43,7 @@ public class Maze implements Serializable {
 		initializeTreasures();
 	}
 
-	public void copyDataFrom(Maze copy) {
+	public synchronized void copyDataFrom(Maze copy) {
 		if (size != copy.size || numberOfTreasures != copy.numberOfTreasures)
 			throw new InvalidParameterException("Maze params are not consistent");
 
@@ -58,7 +58,7 @@ public class Maze implements Serializable {
 	 */
 
 	
-	public void addPlayer(String playerKey, Player player) {
+	public synchronized void addPlayer(String playerKey, Player player) {
 		// we only do N*2 times of trials
 		// there wont be empty spaces more than that amount
 		int trials = size * size;
@@ -77,7 +77,7 @@ public class Maze implements Serializable {
 		return players;
 	}
 
-	public void removePlayer(String playerKey) {
+	public synchronized void removePlayer(String playerKey) {
 		players.remove(playerKey);
 	}
 
@@ -90,7 +90,7 @@ public class Maze implements Serializable {
 		return false;
 	}
 	
-	public boolean movePlayer(String playerKey, PlayerAction action) {
+	public synchronized boolean movePlayer(String playerKey, PlayerAction action) {
 		if (players.get(playerKey) == null)
 			return false;
 		

@@ -154,7 +154,7 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 
 	};
 
-	private void processMessageFromClient(ClientMessage message) {
+	private synchronized void processMessageFromClient(ClientMessage message) {
 		Address target = message.getTargetAddress();
 		PlayerAction action = message.getPlayerAction();
 
@@ -200,7 +200,7 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 
 	}
 
-	private void tellBackUpAndCallingNodesTheNewGameState(Address target, GameNode callingNode) {
+	private synchronized void tellBackUpAndCallingNodesTheNewGameState(Address target, GameNode callingNode) {
 		// update the calling player node
 		try {
 			callingNode.updateGame(new ServerMessage(theMaze));
@@ -236,7 +236,7 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 	}
 
 	@Override
-	public void becomePrimary() {
+	public synchronized void becomePrimary() {
 		isPrimary = true;
 		isBackUp = false;
 		primaryServer = here;
@@ -247,7 +247,7 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 	}
 
 	@Override
-	public void becomeBackUp() {
+	public synchronized void becomeBackUp() {
 		isPrimary = false;
 		isBackUp = true;
 		backUpServer = here;
@@ -257,7 +257,7 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 	 * Update the back up server with the most up to date game maze This should
 	 * only be called by primary server
 	 */
-	private void updateBackUpServer() {
+	private synchronized void updateBackUpServer() {
 		GameNode backUpNode = null;
 		try {
 			backUpNode = (GameNode) LocateRegistry.getRegistry(backUpServer.getHost(), backUpServer.getPort())
@@ -278,7 +278,7 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 	 * Original back up server stopped working, find a new one. only be called
 	 * by primary server
 	 */
-	private void findNewBackUp() {
+	private synchronized void findNewBackUp() {
 		GameNode backUpNode = null;
 
 		try {
@@ -303,7 +303,7 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 		}
 	}
 
-	private void retrieveNodesListFromTracker() {
+	private synchronized void retrieveNodesListFromTracker() {
 		try {
 			Vector<Address> nodes = tracker.getNodes();
 			playersInGame.clear();
@@ -323,7 +323,7 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 	 * @param playerNode
 	 * @throws RemoteException
 	 */
-	private void addNewPlayer(GameNode playerNode) throws RemoteException {
+	private synchronized void addNewPlayer(GameNode playerNode) throws RemoteException {
 		// tell the local maze
 		theMaze.addPlayer(playerNode.getAddress().getKey(), playerNode.getPlayer());
 		tracker.addNode(playerNode.getAddress());
@@ -416,10 +416,21 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 		return null;
 	}
 
-	private void removePlayer(Address playerAddress) {
+	private synchronized void removePlayer(Address playerAddress) {
 		
 		theMaze.removePlayer(playerAddress.getKey());
-		playersInGame.remove(playerAddress);
+		
+		Address removing = null;
+		for (Address address:playersInGame){
+			if (address.sameAs(playerAddress)){
+				removing = address;
+				break;
+			}
+		}
+		
+		if (removing != null)
+			playersInGame.remove(removing);
+		
 		// notify the tracker of player leaving
 		try {
 			tracker.deleteNode(playerAddress);
@@ -468,7 +479,7 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 		}
 	};
 
-	private void processMessageFromServer(ServerMessage nextMessage) {
+	private synchronized void processMessageFromServer(ServerMessage nextMessage) {
 		// update the local maze
 		Maze serverMaze = nextMessage.getTheMaze();
 		theMaze.copyDataFrom(serverMaze);
@@ -498,12 +509,12 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 		return me;
 	}
 
-	public void playerMadeAMove(PlayerAction action) {
+	public synchronized void playerMadeAMove(PlayerAction action) {
 
 		ClientMessage message = new ClientMessage(here, action);
 		System.out.println(message.toString());
 		
-		if (isPrimary) {
+		if (isPrimary && action != PlayerAction.QUIT) {
 			try {
 				enqueueNewMessage(message);
 			} catch (RemoteException e) {
@@ -528,9 +539,9 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 			try {
 				GameNode backUp = (GameNode) LocateRegistry.getRegistry(backUpServer.getHost(), backUpServer.getPort())
 						.lookup(backUpServer.getKey());
-				primaryServer = backUpServer;
 				backUp.becomePrimary();
-				backUp.enqueueNewMessage(message);
+				primaryServer = backUpServer;
+				playerMadeAMove(message.getPlayerAction());
 			} catch (RemoteException | NotBoundException e1) {
 				// and the backUp also failed
 				e1.printStackTrace();
@@ -545,16 +556,17 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 	 * LOCAL ENDS
 	 */
 
-	public void closeGame() {
+	public synchronized void closeGame() {
+		
 		if (isPrimary) {
 			// there will always be at least 2 players
 			if (playersInGame.size() > 2) {
 				try {
 					GameNode backUp = (GameNode) LocateRegistry
 							.getRegistry(backUpServer.getHost(), backUpServer.getPort()).lookup(backUpServer.getKey());
+					backUp.becomePrimary();
 					primaryServer = backUpServer;
 					backUpServer = playersInGame.get(2);
-					backUp.becomePrimary();
 					isPrimary = false;
 					
 				} catch (RemoteException | NotBoundException e) {
@@ -565,9 +577,11 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 			}else{
 				// less than 2 players in game
 				isGamePlaying = false;
+				isPrimary = false;
 				// notify GUI
 				gameWindow.close();
 				System.exit(0);
+				return;
 			}
 		} 
 		

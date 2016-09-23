@@ -106,7 +106,7 @@ public class TrackerImpl extends UnicastRemoteObject implements Tracker {
 	}
 
 	@Override
-	public Vector<Address> getNodes() throws RemoteException {
+	public synchronized Vector<Address> getNodes() throws RemoteException {
 		return nodes;
 	}
 
@@ -130,7 +130,7 @@ public class TrackerImpl extends UnicastRemoteObject implements Tracker {
 //		nodes.addAll(updatedNodes);
 //	}
 
-	private void removeNode(Address node) {
+	private synchronized void removeNode(Address node) {
 		Registry registry;
 		try {
 			registry = LocateRegistry.getRegistry(node.getHost(), node.getPort());
@@ -150,6 +150,7 @@ public class TrackerImpl extends UnicastRemoteObject implements Tracker {
 		for (Address address:nodes){
 			if (address.sameAs(node)){
 				target = address;
+				break;
 			}
 		}
 		
@@ -178,7 +179,7 @@ public class TrackerImpl extends UnicastRemoteObject implements Tracker {
 	}
 
 	@Override
-	public void deleteNode(Address node) throws RemoteException {
+	public synchronized void deleteNode(Address node) throws RemoteException {
 		removeNode(node);
 	}
 }

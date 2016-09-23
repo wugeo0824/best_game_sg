@@ -423,7 +423,7 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 		// notify the tracker of player leaving
 		try {
 			tracker.deleteNode(playerAddress);
-			tracker.updateNodesList(playersInGame);
+			//tracker.updateNodesList(playersInGame);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 			System.out.println("Tracker has stopped working");

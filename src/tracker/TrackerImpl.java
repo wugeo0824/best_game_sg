@@ -119,16 +119,16 @@ public class TrackerImpl extends UnicastRemoteObject implements Tracker {
 
 	}
 
-	@Override
-	public void updateNodesList(Vector<Address> updatedNodes) throws RemoteException {
-		for (Address address:nodes){
-			if (!hasNode(updatedNodes, address)){
-				removeNode(address);
-			}
-		}
-		nodes.clear();
-		nodes.addAll(updatedNodes);
-	}
+//	@Override
+//	public void updateNodesList(Vector<Address> updatedNodes) throws RemoteException {
+//		for (Address address:nodes){
+//			if (!hasNode(updatedNodes, address)){
+//				removeNode(address);
+//			}
+//		}
+//		nodes.clear();
+//		nodes.addAll(updatedNodes);
+//	}
 
 	private void removeNode(Address node) {
 		Registry registry;
@@ -143,16 +143,30 @@ public class TrackerImpl extends UnicastRemoteObject implements Tracker {
 			e.printStackTrace();
 			System.out.println("Player with such user name does not exist in game");
 		}
-		System.out.println("Player " + node.getUserName() + " is removed");
+		
+		boolean result = false;;
+		Address target = null;
+		
+		for (Address address:nodes){
+			if (address.sameAs(node)){
+				target = address;
+			}
+		}
+		
+		if (target != null){
+			result = nodes.remove(target);
+		}
+		
+		System.out.println("Player " + node.getUserName() + " is removed: " +result);
 	}
 	
-	private boolean hasNode(Vector<Address> vector, Address node){
-		for (Address existing:vector){
-			if (existing.sameAs(node))
-				return true;
-		}
-		return false;
-	}
+//	private boolean hasNode(Vector<Address> vector, Address node){
+//		for (Address existing:vector){
+//			if (existing.sameAs(node))
+//				return true;
+//		}
+//		return false;
+//	}
 
 	private static void printHelp() {
 		System.out.println("java Tracker [port-number] [N] [K]");

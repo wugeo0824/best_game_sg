@@ -106,6 +106,5 @@ public class Game {
 			e.printStackTrace();
 			System.out.println("Player with such user name has already existed in game");
 		}
-
 	}
 }

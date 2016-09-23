@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -51,17 +52,22 @@ public class Window extends JFrame {
 	private PlayerAction action = null;
 	private int key;
 	private MyKeyListener myKeylistener;
+	private boolean keylistenrAdded = false;
 
 	public Window(GameNodeImpl localGame) throws RemoteException {
 		Maze maze = localGame.getMaze();
 		this.N = maze.getSize();
 		this.K = maze.getNumberOfTreasures();
+		this.setResizable(true);
 		this.setSize(910, 750);
 		this.setLocationRelativeTo(null);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setVisible(true);
 		this.localGame = localGame;
 		this.username = localGame.getPlayer().getName();
+		this.setFocusable(true);
+		
+		myKeylistener = new MyKeyListener();
 
 		// Initialize the variables
 		btnName = new String[N][N];
@@ -76,8 +82,8 @@ public class Window extends JFrame {
 		add(p1, BorderLayout.WEST);
 		add(p2, BorderLayout.EAST);
 
-		addKeyListener();
-		
+		// addKeyListener();
+
 		// update title
 		setWTitle();
 	}
@@ -101,25 +107,20 @@ public class Window extends JFrame {
 		}
 		return treasureList;
 	}
-	
+
 	private void addKeyListener() {
-		if (playerList.size() > 1) {
-			this.setFocusable(true);
-			myKeylistener = new MyKeyListener();
+		if (playerList.size() > 1 && !keylistenrAdded) {
 			this.addKeyListener(myKeylistener);
-			} else {
-				this.removeKeyListener(myKeylistener);
-			}
+			keylistenrAdded = true;
+		} else if (playerList.size() <= 1 && keylistenrAdded){
+			this.removeKeyListener(myKeylistener);
+			keylistenrAdded = false;
+		}
 	}
 
 	/**
 	 * WINDOW TITLE PART
 	 */
-	// private void getUsername() {
-	// username = JOptionPane.showInputDialog(null, "Welcome!\n" + "Please setup
-	// an username first.", "Maze",
-	// JOptionPane.PLAIN_MESSAGE);
-	// }
 
 	private void getServer() {
 		if (localGame.isPrimary()) {
@@ -194,17 +195,17 @@ public class Window extends JFrame {
 				btnName[m][n] = "";
 			}
 		}
-		
+
 		// set players positions as players names
 		for (int k = 0; k < playerList.size(); k++) {
 			Location locP = playerList.get(k).getCurrentLocation();
-			btnName[locP.getLocationX()][locP.getLocationY()] = playerList.get(k).getName();
+			btnName[locP.getLocationY()][locP.getLocationX()] = playerList.get(k).getName();
 		}
 
 		// set treasures positions as "*"
 		for (int k = 0; k < treasureList.size(); k++) {
 			Location locT = treasureList.get(k).getLocation();
-			btnName[locT.getLocationX()][locT.getLocationY()] = "*";
+			btnName[locT.getLocationY()][locT.getLocationX()] = "*";
 		}
 		return btnName;
 	}
@@ -236,7 +237,7 @@ public class Window extends JFrame {
 	 * KEYEVENT
 	 */
 	class MyKeyListener extends KeyAdapter {
-		public void keyPressed(KeyEvent e) {
+		public void keyReleased(KeyEvent e) {
 			key = e.getKeyCode();
 			if (key == KeyEvent.VK_1) {
 				action = PlayerAction.MOVE_LEFT;
@@ -268,15 +269,11 @@ public class Window extends JFrame {
 
 		localGame.playerMadeAMove(action);
 		action = null;
-//		try {
-//			updateGame(localGame.getMaze());
-//		} catch (RemoteException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
 	}
 
-	public void update(Maze newMaze) {
+	public void updateGame(Maze newMaze) {
+		// update the GUI according to the maze
+
 		playerList = getPlayerList(newMaze.getPlayers());
 		treasureList = getTreasureList(newMaze.getTreasures());
 
@@ -285,18 +282,6 @@ public class Window extends JFrame {
 		revalidate();
 		addKeyListener();
 		setWTitle();
-	}
-	public void updateGame(Maze newnewMaze) {
-		// update the GUI according to the maze
-
-		update(newnewMaze);
-
-		if (key == KeyEvent.VK_1 || key == KeyEvent.VK_2 || key == KeyEvent.VK_3 || key == KeyEvent.VK_4
-				|| key == KeyEvent.VK_9 || key == KeyEvent.VK_0) {
-			update(newnewMaze);
-			
-
-		}
 	}
 
 	public void close() {

@@ -253,6 +253,7 @@ public class Window extends JFrame {
 				action = PlayerAction.STAY;
 			}
 			processKeyInput(action);
+			action = null;
 			return;
 		}
 	}
@@ -268,7 +269,6 @@ public class Window extends JFrame {
 		}
 
 		localGame.playerMadeAMove(action);
-		action = null;
 	}
 
 	public void updateGame(Maze newMaze) {

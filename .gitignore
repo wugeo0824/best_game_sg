@@ -1,8 +1,8 @@
 
-bin/game/GameNodeImpl.class
-
 *.class
 
-bin/tracker/TrackerImpl.class
+bin/
 
-CS5223_StressTest12123/ac_12123
+CS5223_StressTest12123/
+
+bin/CS5223_StressTest12123/

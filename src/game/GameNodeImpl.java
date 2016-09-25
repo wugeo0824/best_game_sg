@@ -122,8 +122,9 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 	 */
 
 	public void syncUpMaze(Maze backUpMaze) {
-		theMaze = null;
-		theMaze = new Maze(backUpMaze.getSize(), backUpMaze.getNumberOfTreasures());
+		if(theMaze == null)
+			theMaze = new Maze(backUpMaze.getSize(), backUpMaze.getNumberOfTreasures());
+		
 		theMaze.copyDataFrom(backUpMaze);
 	}
 

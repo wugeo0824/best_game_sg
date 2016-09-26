@@ -4,7 +4,6 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.Random;
 import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -81,9 +80,13 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 		isPrimary = true;
 		// only initialize maze at primary server
 		theMaze.initialize();
-		addNewPlayer(this);
+		
 		// start the actual game GUI
 		gameWindow = new Window(this);
+		gameWindow.updateMaze(theMaze);
+		
+		addNewPlayer(this);
+		
 		pinThread.start();
 
 		System.out.println("Successfully started player at [" + here.getKey() + "]");
@@ -330,7 +333,7 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 	 * interval has been set to 5000ms => 5s
 	 */
 	static int pinCounter = 2;
-	
+
 	private Runnable pinPlayersRunnable = new Runnable() {
 
 		@Override
@@ -345,18 +348,19 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 				}
 
 				System.out.println("Pin Thread pins");
-				
+
 				Vector<Address> nodes = getNodesListFromTracker();
-				
-				synchronized (this){
-					
-					// we are skipping 0 and 1, since we are not checking primary and back up
-					if (pinCounter >= nodes.size()){
-						pinCounter = 2;
+				if (nodes.size() > 2) {
+					synchronized (this) {
+						// we are skipping 0 and 1, since we are not checking
+						// primary and back up
+						if (pinCounter >= nodes.size()) {
+							pinCounter = 2;
+						}
+
+						findGameNode(nodes.get(pinCounter));
+						pinCounter++;
 					}
-					
-					findGameNode(nodes.get(pinCounter));
-					pinCounter ++;
 				}
 			}
 		}

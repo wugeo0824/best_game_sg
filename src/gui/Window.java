@@ -44,6 +44,7 @@ public class Window extends JFrame {
 	private ArrayList<Player> playerList;
 	private ArrayList<Treasure> treasureList;
 	private String[][] btnName;
+	private JButton[][] buttons;
 	private GameNodeImpl localGame;
 	private DefaultTableModel tableModel;
 	private static String tableTitle[] = { "Player", "Score" };
@@ -71,6 +72,7 @@ public class Window extends JFrame {
 
 		// Initialize the variables
 		btnName = new String[N][N];
+		buttons = new JButton[N][N];
 
 		playerList = getPlayerList(maze.getPlayers());
 		treasureList = getTreasureList(maze.getTreasures());
@@ -89,8 +91,13 @@ public class Window extends JFrame {
 	}
 
 	private ArrayList<Player> getPlayerList(HashMap<String, Player> players) {
-		Set<Map.Entry<String, Player>> playerInfoSet = players.entrySet();
 		playerList = new ArrayList<Player>();
+		
+		if (players.isEmpty()){
+			return playerList;
+		}
+		
+		Set<Map.Entry<String, Player>> playerInfoSet = players.entrySet();
 		Iterator<Map.Entry<String, Player>> pl = playerInfoSet.iterator();
 		while (pl.hasNext()) {
 			playerList.add(pl.next().getValue());
@@ -99,8 +106,12 @@ public class Window extends JFrame {
 	}
 
 	private ArrayList<Treasure> getTreasureList(HashMap<String, Treasure> treasures) {
-		Set<Map.Entry<String, Treasure>> treasureSet = treasures.entrySet();
 		treasureList = new ArrayList<Treasure>();
+		
+		if (treasures.isEmpty())
+			return treasureList;
+		
+		Set<Map.Entry<String, Treasure>> treasureSet = treasures.entrySet();
 		Iterator<Map.Entry<String, Treasure>> tr = treasureSet.iterator();
 		while (tr.hasNext()) {
 			treasureList.add(tr.next().getValue());
@@ -135,7 +146,7 @@ public class Window extends JFrame {
 
 	private void getStatus() {
 		if (playerList.size() > 1) {
-			status = "[started]";
+			status = "[game started]";
 		}
 	}
 
@@ -144,7 +155,7 @@ public class Window extends JFrame {
 		getStatus();
 		getServer();
 
-		title = username + server + status;
+		title = "Player: " + username + " " + server + " " + status;
 		return title;
 	}
 
@@ -167,21 +178,24 @@ public class Window extends JFrame {
 
 	public JPanel setTableData() {
 		// Create panel p1 for the scores at the left part of the window
-		p1 = new JPanel();
+		if (p1 == null){
+			p1 = new JPanel();
+		}
+		
+		p1.removeAll();
 		table = getTableData();
 		tableModel = new DefaultTableModel(table, tableTitle);
 		JTable playerTable = new JTable(tableModel);
 		JScrollPane scrollPane = new JScrollPane(playerTable);
 		scrollPane.setPreferredSize(new Dimension(150, 700));
 		p1.add(scrollPane);
+
 		return p1;
 
 	}
 
 	public void updateTableData() {
-		p1.removeAll();
-		this.remove(p1);
-		this.add(setTableData(), BorderLayout.WEST);
+		setTableData();
 	}
 
 	/**
@@ -211,26 +225,37 @@ public class Window extends JFrame {
 	}
 
 	public JPanel setAllPositions() {
-		// Create panel p2 for the positions at the right of the window
-		p2 = new JPanel();
-		p2.setLayout(new GridLayout(N, N));
+		
 		btnName = getAllPositions();
-		for (int r = 0; r < N; r++) {
-			for (int c = 0; c < N; c++) {
-				JButton btn = new JButton();
-				btn.setText(btnName[r][c]);
-				btn.setPreferredSize(new Dimension(50, 50));
-				btn.setBorder(BorderFactory.createEtchedBorder());
-				p2.add(btn);
+		
+		// Create panel p2 for the positions at the right of the window
+		if (p2 == null){
+			p2 = new JPanel();
+			p2.setLayout(new GridLayout(N, N));
+			
+			for (int r = 0; r < N; r++) {
+				for (int c = 0; c < N; c++) {
+					JButton btn = new JButton();
+					btn.setFocusable(false);
+					btn.setPreferredSize(new Dimension(50, 50));
+					btn.setBorder(BorderFactory.createEtchedBorder());
+					buttons[r][c] = btn;
+					p2.add(btn);
+				}
 			}
 		}
+		
+		for (int r = 0; r < N; r++) {
+			for (int c = 0; c < N; c++) {
+				buttons[r][c].setText(btnName[r][c]);
+			}
+		}
+		
 		return p2;
 	}
 
 	public void updateAllPositions() {
-		p2.removeAll();
-		this.remove(p2);
-		this.add(setAllPositions(), BorderLayout.EAST);
+		setAllPositions();
 	}
 
 	/**

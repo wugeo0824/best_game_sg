@@ -213,7 +213,9 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 	}
 
 	private synchronized void tellBackUpAndCallingNodesTheNewGameState(Address target, GameNode callingNode) {
-
+		// update the local GUI (this is for primary server)
+		gameWindow.updateMaze(theMaze);
+		
 		Address callingAddress = null;
 		// update the calling player node
 		try {
@@ -232,9 +234,6 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 			if (callingAddress != null && !callingAddress.sameAs(backUpServer))
 				updateBackUpServer();
 		}
-
-		// update the local GUI (this is for primary server)
-		gameWindow.updateMaze(theMaze);
 	}
 
 	public boolean isPrimary() {
@@ -504,9 +503,6 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 			GameNode primary = (GameNode) LocateRegistry.getRegistry(primaryServer.getHost(), primaryServer.getPort())
 					.lookup(primaryServer.getKey());
 			primary.enqueueNewMessage(message);
-			// if (!primary.isPrimary()) {
-			// primary.becomePrimary();
-			// }
 		} catch (RemoteException | NotBoundException e) {
 			// in the event that primary is down
 			System.out.println("playerMadeAMove error, primary is down");
@@ -527,7 +523,6 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 						primaryServer = address;
 					}
 				}
-
 				playerMadeAMove(message.getPlayerAction());
 			}
 		}
@@ -537,19 +532,18 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 	 * LOCAL ENDS
 	 */
 
-	public void terminateProcess() {
-		System.exit(0);
-	}
-
 	public void closeGame() {
 
+		if (!isGamePlaying)
+			return;
+		
+		isGamePlaying = false;
+		
 		Vector<Address> nodes = getNodesListFromTracker();
 
 		if (nodes == null || nodes.size() < 3) {
 			// less than 2 players in game
 			isPrimary = false;
-			// notify GUI
-			gameWindow.close();
 			return;
 		}
 
@@ -572,12 +566,6 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 		}
 
 		playerMadeAMove(PlayerAction.QUIT);
-		isGamePlaying = false;
-
-		// notify GUI
-		serverExecutor.shutdown();
-		clientExecutor.shutdown();
-		gameWindow.close();
 	}
 
 	@Override

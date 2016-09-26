@@ -53,7 +53,6 @@ public class Window extends JFrame {
 	private PlayerAction action = null;
 	private int key;
 	private MyKeyListener myKeylistener;
-	private boolean keylistenrAdded = false;
 
 	public Window(GameNodeImpl localGame) throws RemoteException {
 		Maze maze = localGame.getMaze();
@@ -83,6 +82,10 @@ public class Window extends JFrame {
 		// // add the two panels to the frame
 		//
 
+		//addKeyListener();
+		
+		addKeyListener(myKeylistener);
+		
 		// update title
 		setWTitle();
 	}
@@ -116,13 +119,13 @@ public class Window extends JFrame {
 		return treasureList;
 	}
 
-	private void addKeyListener() {
-		if (keylistenrAdded)
-			return;
-
-		addKeyListener(myKeylistener);
-		keylistenrAdded = true;
-	}
+//	private void addKeyListener() {
+//		if (keylistenrAdded)
+//			return;
+//
+//		addKeyListener(myKeylistener);
+//		keylistenrAdded = true;
+//	}
 
 	/**
 	 * WINDOW TITLE PART
@@ -217,6 +220,7 @@ public class Window extends JFrame {
 			Location locT = treasureList.get(k).getLocation();
 			btnName[locT.getLocationY()][locT.getLocationX()] = "*";
 		}
+		
 		return btnName;
 	}
 
@@ -287,8 +291,9 @@ public class Window extends JFrame {
 		}
 
 		if (action == PlayerAction.QUIT) {
-			localGame.terminateProcess();
-			;
+			localGame.closeGame();
+			close();
+			System.exit(0);
 			return;
 		}
 
@@ -297,7 +302,6 @@ public class Window extends JFrame {
 
 	public void updateMaze(Maze newMaze) {
 		// update the GUI according to the maze
-
 		playerList.clear();
 		treasureList.clear();
 		playerList.addAll(getPlayerList(newMaze.getPlayers()));
@@ -306,7 +310,6 @@ public class Window extends JFrame {
 		updateTableData();
 		updateAllPositions();
 		revalidate();
-		addKeyListener();
 		setWTitle();
 	}
 

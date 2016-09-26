@@ -67,7 +67,7 @@ public class Window extends JFrame {
 		this.localGame = localGame;
 		this.username = localGame.getPlayer().getName();
 		this.setFocusable(true);
-		
+
 		myKeylistener = new MyKeyListener();
 
 		// Initialize the variables
@@ -77,23 +77,23 @@ public class Window extends JFrame {
 		playerList = new ArrayList<Player>();
 		treasureList = new ArrayList<Treasure>();
 
-//		setTableData();
-//		setAllPositions();
-//
-//		// add the two panels to the frame
-//		
-		
+		// setTableData();
+		// setAllPositions();
+		//
+		// // add the two panels to the frame
+		//
+
 		// update title
 		setWTitle();
 	}
 
 	private ArrayList<Player> getPlayerList(HashMap<String, Player> players) {
 		ArrayList<Player> playerList = new ArrayList<Player>();
-		
-		if (players.isEmpty()){
+
+		if (players.isEmpty()) {
 			return playerList;
 		}
-		
+
 		Set<Map.Entry<String, Player>> playerInfoSet = players.entrySet();
 		Iterator<Map.Entry<String, Player>> pl = playerInfoSet.iterator();
 		while (pl.hasNext()) {
@@ -104,10 +104,10 @@ public class Window extends JFrame {
 
 	private ArrayList<Treasure> getTreasureList(HashMap<String, Treasure> treasures) {
 		ArrayList<Treasure> treasureList = new ArrayList<Treasure>();
-		
+
 		if (treasures.isEmpty())
 			return treasureList;
-		
+
 		Set<Map.Entry<String, Treasure>> treasureSet = treasures.entrySet();
 		Iterator<Map.Entry<String, Treasure>> tr = treasureSet.iterator();
 		while (tr.hasNext()) {
@@ -119,14 +119,9 @@ public class Window extends JFrame {
 	private void addKeyListener() {
 		if (keylistenrAdded)
 			return;
-		
-		if (playerList.size() > 1) {
-			this.addKeyListener(myKeylistener);
-			keylistenrAdded = true;
-		} else if (playerList.size() <= 1){
-			this.removeKeyListener(myKeylistener);
-			keylistenrAdded = false;
-		}
+
+		addKeyListener(myKeylistener);
+		keylistenrAdded = true;
 	}
 
 	/**
@@ -178,11 +173,11 @@ public class Window extends JFrame {
 
 	public JPanel setTableData() {
 		// Create panel p1 for the scores at the left part of the window
-		if (p1 == null){
+		if (p1 == null) {
 			p1 = new JPanel();
 			add(p1, BorderLayout.WEST);
 		}
-		
+
 		p1.removeAll();
 		table = getTableData();
 		tableModel = new DefaultTableModel(table, tableTitle);
@@ -226,14 +221,14 @@ public class Window extends JFrame {
 	}
 
 	public JPanel setAllPositions() {
-		
+
 		btnName = getAllPositions();
-		
+
 		// Create panel p2 for the positions at the right of the window
-		if (p2 == null){
+		if (p2 == null) {
 			p2 = new JPanel();
 			p2.setLayout(new GridLayout(N, N));
-			
+
 			for (int r = 0; r < N; r++) {
 				for (int c = 0; c < N; c++) {
 					JButton btn = new JButton();
@@ -246,13 +241,13 @@ public class Window extends JFrame {
 			}
 			add(p2, BorderLayout.EAST);
 		}
-		
+
 		for (int r = 0; r < N; r++) {
 			for (int c = 0; c < N; c++) {
 				buttons[r][c].setText(btnName[r][c]);
 			}
 		}
-		
+
 		return p2;
 	}
 
@@ -279,6 +274,7 @@ public class Window extends JFrame {
 			} else if (key == KeyEvent.VK_0) {
 				action = PlayerAction.STAY;
 			}
+			System.out.println("Key " + e.toString() + "pressed");
 			processKeyInput(action);
 			action = null;
 			return;
@@ -291,7 +287,8 @@ public class Window extends JFrame {
 		}
 
 		if (action == PlayerAction.QUIT) {
-			localGame.terminateProcess();;
+			localGame.terminateProcess();
+			;
 			return;
 		}
 

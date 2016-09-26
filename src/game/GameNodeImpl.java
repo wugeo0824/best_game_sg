@@ -57,19 +57,25 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 		this.here = here;
 		me = new Player(here.getUserName(), 0, null, here);
 		theMaze = new Maze(size, numberOfTreasures);
+		
 		messagesFromClient = new LinkedBlockingQueue<ClientMessage>();
 		serverExecutor = Executors.newSingleThreadExecutor();
 
 		messagesFromServer = new LinkedBlockingQueue<ServerMessage>();
 		clientExecutor = Executors.newSingleThreadExecutor();
+		
 		pinThread = new Thread(pinPlayersRunnable);
+	}
 
-		if (playerNameList.size() >= 2) {
-			primaryServer = playerNameList.get(0);
-			backUpServer = playerNameList.get(1);
-			System.out.println("Here is Normal. Primary server at " + primaryServer.getKey());
-			System.out.println("BackUp server at " + backUpServer.getKey());
-		}
+	public void attachShutDownHook() {
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				closeGame();
+				System.out.println("Shut Down Hook Executed.");
+			}
+		});
+		System.out.println("Shut Down Hook Attached.");
 	}
 
 	@Override
@@ -81,12 +87,17 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 		// only initialize maze at primary server
 		theMaze.initialize();
 		
+		// add primary player into local game
+		//addNewPlayer(this);
+		enqueueNewMessage(new ClientMessage(here, PlayerAction.JOIN));
+
 		// start the actual game GUI
 		gameWindow = new Window(this);
+		
+		// update the game GUI
 		gameWindow.updateMaze(theMaze);
 		
-		addNewPlayer(this);
-		
+		// primary should constantly check whether there is dead node
 		pinThread.start();
 
 		System.out.println("Successfully started player at [" + here.getKey() + "]");
@@ -126,6 +137,8 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 
 	public void startProcessingMessages() {
 		isGamePlaying = true;
+
+		attachShutDownHook();
 	}
 
 	/**
@@ -155,8 +168,12 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 
 		if (target.sameAs(here)) {
 			// when primary making a move
-			// primary is never making requests like join or quit
-			theMaze.movePlayer(target.getKey(), action);
+			// primary is never making request quit
+			if (action == PlayerAction.JOIN){
+				theMaze.addPlayer(here.getKey(), me);
+			}else{
+				theMaze.movePlayer(target.getKey(), action);
+			}
 			updateBackUpServer();
 
 			// update the local GUI (this is for primary server)
@@ -252,6 +269,9 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 	 */
 	private synchronized void updateBackUpServer() {
 		GameNode backUpNode = null;
+		if (backUpServer == null)
+			return;
+		
 		try {
 			backUpNode = (GameNode) LocateRegistry.getRegistry(backUpServer.getHost(), backUpServer.getPort())
 					.lookup(backUpServer.getKey());
@@ -306,7 +326,6 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 		} catch (RemoteException e) {
 			e.printStackTrace();
 			System.out.println("Tracker has stopped working");
-			System.exit(0);
 		}
 
 		return null;
@@ -513,34 +532,38 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 	 * LOCAL ENDS
 	 */
 
+	public void terminateProcess() {
+		System.exit(0);
+	}
+
 	public void closeGame() {
 
+		Vector<Address> nodes = getNodesListFromTracker();
+
+		if (nodes == null || nodes.size() < 3) {
+			// less than 2 players in game
+			isPrimary = false;
+			// notify GUI
+			gameWindow.close();
+			return;
+		}
+
+		// there will always be at least 2 players
 		if (isPrimary) {
-			// there will always be at least 2 players
-			if (getNodesListFromTracker().size() > 2) {
-				// when there are enough players, we let the backUp to be
-				// primary, and tell it to remove here from the game
-				try {
-					GameNode backUp = (GameNode) LocateRegistry
-							.getRegistry(backUpServer.getHost(), backUpServer.getPort()).lookup(backUpServer.getKey());
-					backUp.becomePrimary();
-					primaryServer = backUpServer;
-					// backUpServer = nodesInGame.get(2);
-					isPrimary = false;
-
-				} catch (RemoteException | NotBoundException e) {
-					e.printStackTrace();
-				}
-
-			} else {
-				// less than 2 players in game
-				// isGamePlaying = false;
+			// when there are enough players, we let the backUp to be
+			// primary, and tell it to remove here from the game
+			try {
+				GameNode backUp = (GameNode) LocateRegistry.getRegistry(backUpServer.getHost(), backUpServer.getPort())
+						.lookup(backUpServer.getKey());
+				backUp.becomePrimary();
+				primaryServer = backUpServer;
+				// backUpServer = nodesInGame.get(2);
 				isPrimary = false;
-				// notify GUI
-				gameWindow.close();
-				System.exit(0);
-				return;
+
+			} catch (RemoteException | NotBoundException e) {
+				e.printStackTrace();
 			}
+
 		}
 
 		playerMadeAMove(PlayerAction.QUIT);
@@ -550,8 +573,6 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 		serverExecutor.shutdown();
 		clientExecutor.shutdown();
 		gameWindow.close();
-
-		System.exit(0);
 	}
 
 	@Override

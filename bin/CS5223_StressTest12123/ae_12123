@@ -1,26 +1,11 @@
-Game starting for player: ae players already in game: 2
-Here is Normal. Primary server at ac10.0.1.631099
-BackUp server at ab10.0.1.631099
-Here is Normal. Primary server at ac10.0.1.631099
-BackUp server at ab10.0.1.631099
+Game starting for player: ae players already in game: 3
+Here is Normal. Primary server at ac172.25.101.891099
+BackUp server at ab172.25.101.891099
+Shut Down Hook Attached.
+Here is Normal. Primary server at ac172.25.101.891099
+BackUp server at ab172.25.101.891099
 player ae want to JOIN
-Successfully started player at [ae10.0.1.631099]
-Received message from primary
-player ae want to MOVE_LEFT
-Received message from primary
-player ae want to MOVE_DOWN
-Received message from primary
-player ae want to MOVE_RIGHT
-Received message from primary
-player ae want to MOVE_LEFT
-Received message from primary
-player ae want to MOVE_DOWN
-Received message from primary
-player ae want to MOVE_LEFT
-Received message from primary
-player ae want to MOVE_DOWN
-Received message from primary
-player ae want to MOVE_RIGHT
+Successfully started player at [ae172.25.101.891099]
 Received message from primary
 player ae want to MOVE_UP
 Received message from primary
@@ -28,85 +13,12 @@ player ae want to MOVE_LEFT
 Received message from primary
 player ae want to MOVE_DOWN
 Received message from primary
-player ae want to MOVE_RIGHT
-Received message from primary
-player ae want to MOVE_LEFT
-Received message from primary
-player ae want to MOVE_DOWN
-Received message from primary
-player ae want to MOVE_UP
-Received message from primary
 player ae want to MOVE_UP
 Received message from primary
 player ae want to MOVE_LEFT
 Received message from primary
 player ae want to MOVE_DOWN
 Received message from primary
-player ae want to MOVE_RIGHT
-Received message from primary
-player ae want to MOVE_LEFT
-Received message from primary
-player ae want to MOVE_DOWN
-Received message from primary
-player ae want to MOVE_RIGHT
-Received message from primary
-player ae want to MOVE_RIGHT
-Received message from primary
-player ae want to MOVE_RIGHT
-Received message from primary
-player ae want to MOVE_RIGHT
-Received message from primary
-player ae want to MOVE_LEFT
-Received message from primary
-player ae want to MOVE_DOWN
-Received message from primary
-player ae want to MOVE_RIGHT
-Received message from primary
-player ae want to MOVE_LEFT
-Received message from primary
-player ae want to MOVE_DOWN
-Received message from primary
-player ae want to MOVE_RIGHT
-Received message from primary
-player ae want to MOVE_LEFT
-Received message from primary
-player ae want to MOVE_LEFT
-Received message from primary
-player ae want to MOVE_DOWN
-Received message from primary
-player ae want to MOVE_RIGHT
-Received message from primary
-player ae want to MOVE_RIGHT
-Received message from primary
-player ae want to MOVE_RIGHT
-Received message from primary
-player ae want to MOVE_LEFT
-Received message from primary
-player ae want to MOVE_DOWN
-Received message from primary
-player ae want to MOVE_RIGHT
-Received message from primary
-player ae want to MOVE_DOWN
-Received message from primary
-player ae want to MOVE_DOWN
-Received message from primary
-player ae want to MOVE_UP
-Received message from primary
-player ae want to MOVE_UP
-Received message from primary
-player ae want to MOVE_LEFT
-Received message from primary
-player ae want to MOVE_LEFT
-Received message from primary
-player ae want to MOVE_LEFT
-Received message from primary
-player ae want to MOVE_UP
-Received message from primary
-player ae want to MOVE_LEFT
-Received message from primary
-player ae want to MOVE_LEFT
-Received message from primary
-player ae want to MOVE_UP
-Received message from primary
-player ae want to MOVE_UP
-Received message from primary
+player ae want to QUIT
+playerMadeAMove error, primary is down
+player ae want to QUIT

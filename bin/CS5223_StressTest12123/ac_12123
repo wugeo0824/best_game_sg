@@ -1,116 +1,111 @@
 Game starting for player: ac players already in game: 0
-Player ac has been added to maze true
+Shut Down Hook Attached.
 Got message: player ab want to JOIN
 Player ab has been added to maze true
 Got message: player ad want to JOIN
 Player ad has been added to maze true
 Got message: player ae want to JOIN
 Player ae has been added to maze true
-Successfully started player at [ac10.0.1.631099]
+Player ac has been added to maze true
+Successfully started player at [ac172.25.101.891099]
+Pin Thread pins
+Pin Thread pins
+player ac want to MOVE_LEFT
+Got message: player ac want to MOVE_LEFT
+player ac want to MOVE_DOWN
+Got message: player ac want to MOVE_DOWN
+player ac want to MOVE_RIGHT
+Got message: player ac want to MOVE_RIGHT
+player ac want to MOVE_UP
+Got message: player ac want to MOVE_UP
+player ac want to MOVE_DOWN
+Got message: player ac want to MOVE_DOWN
+player ac want to MOVE_RIGHT
+Got message: player ac want to MOVE_RIGHT
+player ac want to MOVE_LEFT
+Got message: player ac want to MOVE_LEFT
+player ac want to MOVE_DOWN
+Got message: player ac want to MOVE_DOWN
+player ac want to MOVE_RIGHT
+Got message: player ac want to MOVE_RIGHT
+player ac want to MOVE_LEFT
+Got message: player ac want to MOVE_LEFT
+player ac want to MOVE_DOWN
+Got message: player ac want to MOVE_DOWN
+Pin Thread pins
+Got message: player ad want to MOVE_LEFT
 Got message: player ad want to MOVE_UP
 Got message: player ad want to MOVE_LEFT
 Got message: player ad want to MOVE_DOWN
 Got message: player ad want to MOVE_RIGHT
-Got message: player ab want to MOVE_LEFT
-Got message: player ab want to MOVE_DOWN
-Got message: player ab want to MOVE_RIGHT
-Got message: player ae want to MOVE_LEFT
-Got message: player ae want to MOVE_DOWN
-Got message: player ae want to MOVE_RIGHT
-Got message: player ae want to MOVE_LEFT
-Got message: player ae want to MOVE_DOWN
-Got message: player ae want to MOVE_LEFT
-Got message: player ae want to MOVE_DOWN
-Got message: player ae want to MOVE_RIGHT
-Got message: player ab want to MOVE_LEFT
-Got message: player ab want to MOVE_DOWN
-Got message: player ab want to MOVE_RIGHT
-Got message: player ab want to MOVE_LEFT
-Got message: player ab want to MOVE_DOWN
-Got message: player ab want to MOVE_RIGHT
+Got message: player ad want to MOVE_DOWN
+Got message: player ad want to MOVE_DOWN
+Got message: player ad want to MOVE_UP
+Got message: player ad want to MOVE_UP
+Pin Thread pins
+player ac want to MOVE_LEFT
+Got message: player ac want to MOVE_LEFT
+player ac want to MOVE_DOWN
+Got message: player ac want to MOVE_DOWN
+player ac want to MOVE_RIGHT
+Got message: player ac want to MOVE_RIGHT
+player ac want to MOVE_LEFT
+Got message: player ac want to MOVE_LEFT
+player ac want to MOVE_UP
+Got message: player ac want to MOVE_UP
+player ac want to MOVE_LEFT
+Got message: player ac want to MOVE_LEFT
+player ac want to MOVE_DOWN
+Got message: player ac want to MOVE_DOWN
+player ac want to MOVE_RIGHT
+Got message: player ac want to MOVE_RIGHT
+Pin Thread pins
+Got message: player ad want to MOVE_UP
 Got message: player ad want to MOVE_LEFT
 Got message: player ad want to MOVE_DOWN
 Got message: player ad want to MOVE_RIGHT
 Got message: player ad want to MOVE_LEFT
 Got message: player ad want to MOVE_DOWN
-Got message: player ad want to MOVE_RIGHT
 Got message: player ae want to MOVE_UP
 Got message: player ae want to MOVE_LEFT
 Got message: player ae want to MOVE_DOWN
-Got message: player ae want to MOVE_RIGHT
-Got message: player ae want to MOVE_LEFT
-Got message: player ae want to MOVE_DOWN
-Got message: player ae want to MOVE_UP
-Got message: player ad want to MOVE_LEFT
-Got message: player ad want to MOVE_DOWN
-Got message: player ad want to MOVE_RIGHT
-Got message: player ad want to MOVE_RIGHT
-Got message: player ad want to MOVE_RIGHT
-Got message: player ad want to MOVE_RIGHT
-Got message: player ad want to MOVE_RIGHT
-Got message: player ad want to MOVE_RIGHT
-Got message: player ad want to MOVE_DOWN
-Got message: player ad want to MOVE_LEFT
-Got message: player ad want to MOVE_DOWN
-Got message: player ad want to MOVE_RIGHT
-Got message: player ab want to MOVE_LEFT
-Got message: player ab want to MOVE_DOWN
-Got message: player ab want to MOVE_RIGHT
-Got message: player ab want to MOVE_LEFT
-Got message: player ab want to MOVE_DOWN
-Got message: player ab want to MOVE_RIGHT
-Got message: player ad want to MOVE_LEFT
-Got message: player ad want to MOVE_DOWN
-Got message: player ad want to MOVE_RIGHT
-Got message: player ad want to MOVE_LEFT
-Got message: player ad want to MOVE_DOWN
-Got message: player ad want to MOVE_RIGHT
-Got message: player ad want to MOVE_LEFT
-Got message: player ad want to MOVE_RIGHT
-Got message: player ad want to MOVE_RIGHT
-Got message: player ad want to MOVE_RIGHT
 Got message: player ae want to MOVE_UP
 Got message: player ae want to MOVE_LEFT
 Got message: player ae want to MOVE_DOWN
-Got message: player ae want to MOVE_RIGHT
-Got message: player ae want to MOVE_LEFT
-Got message: player ae want to MOVE_DOWN
-Got message: player ae want to MOVE_RIGHT
-Got message: player ae want to MOVE_RIGHT
-Got message: player ae want to MOVE_RIGHT
-Got message: player ae want to MOVE_RIGHT
-Got message: player af want to JOIN
-Player af has been added to maze true
-Got message: player af want to MOVE_LEFT
-Got message: player af want to MOVE_DOWN
-Got message: player af want to MOVE_RIGHT
-Got message: player af want to MOVE_LEFT
-Got message: player af want to MOVE_DOWN
-Got message: player af want to MOVE_LEFT
-Got message: player ae want to MOVE_LEFT
-Got message: player ae want to MOVE_DOWN
-Got message: player ae want to MOVE_RIGHT
-Got message: player ae want to MOVE_LEFT
-Got message: player ae want to MOVE_DOWN
-Got message: player ae want to MOVE_RIGHT
-Got message: player ae want to MOVE_LEFT
-Got message: player ae want to MOVE_LEFT
-Got message: player ae want to MOVE_DOWN
-Got message: player ae want to MOVE_RIGHT
-Got message: player ae want to MOVE_RIGHT
-Got message: player ae want to MOVE_RIGHT
-Got message: player ae want to MOVE_LEFT
-Got message: player ae want to MOVE_DOWN
-Got message: player ae want to MOVE_RIGHT
-Got message: player ae want to MOVE_DOWN
-Got message: player ae want to MOVE_DOWN
-Got message: player ae want to MOVE_UP
-Got message: player ae want to MOVE_UP
-Got message: player ae want to MOVE_LEFT
-Got message: player ae want to MOVE_LEFT
-Got message: player ae want to MOVE_LEFT
-Got message: player ae want to MOVE_UP
-Got message: player ae want to MOVE_LEFT
-Got message: player ae want to MOVE_LEFT
-Got message: player ae want to MOVE_UP
-Got message: player ae want to MOVE_UP
+Pin Thread pins
+player ac want to MOVE_LEFT
+Got message: player ac want to MOVE_LEFT
+player ac want to MOVE_DOWN
+Got message: player ac want to MOVE_DOWN
+player ac want to MOVE_RIGHT
+Got message: player ac want to MOVE_RIGHT
+player ac want to MOVE_LEFT
+Got message: player ac want to MOVE_LEFT
+player ac want to MOVE_DOWN
+Got message: player ac want to MOVE_DOWN
+player ac want to MOVE_RIGHT
+Got message: player ac want to MOVE_RIGHT
+player ac want to MOVE_UP
+Got message: player ac want to MOVE_UP
+player ac want to MOVE_LEFT
+Got message: player ac want to MOVE_LEFT
+player ac want to MOVE_DOWN
+Got message: player ac want to MOVE_DOWN
+player ac want to MOVE_UP
+Got message: player ac want to MOVE_UP
+player ac want to MOVE_LEFT
+Got message: player ac want to MOVE_LEFT
+player ac want to MOVE_DOWN
+Got message: player ac want to MOVE_DOWN
+player ac want to MOVE_UP
+Got message: player ac want to MOVE_UP
+player ac want to MOVE_LEFT
+Got message: player ac want to MOVE_LEFT
+player ac want to MOVE_DOWN
+Got message: player ac want to MOVE_DOWN
+player ac want to MOVE_UP
+Got message: player ac want to MOVE_UP
+Pin Thread pins
+Exception in thread "Thread-2" java.lang.NullPointerException
+	at game.GameNodeImpl.closeGame(GameNodeImpl.java:542)
+	at game.GameNodeImpl$2.run(GameNodeImpl.java:79)

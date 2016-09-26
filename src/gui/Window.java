@@ -74,24 +74,21 @@ public class Window extends JFrame {
 		btnName = new String[N][N];
 		buttons = new JButton[N][N];
 
-		playerList = getPlayerList(maze.getPlayers());
-		treasureList = getTreasureList(maze.getTreasures());
+		playerList = new ArrayList<Player>();
+		treasureList = new ArrayList<Treasure>();
 
-		setTableData();
-		setAllPositions();
-
-		// add the two panels to the frame
-		add(p1, BorderLayout.WEST);
-		add(p2, BorderLayout.EAST);
-
-		// addKeyListener();
-
+//		setTableData();
+//		setAllPositions();
+//
+//		// add the two panels to the frame
+//		
+		
 		// update title
 		setWTitle();
 	}
 
 	private ArrayList<Player> getPlayerList(HashMap<String, Player> players) {
-		playerList = new ArrayList<Player>();
+		ArrayList<Player> playerList = new ArrayList<Player>();
 		
 		if (players.isEmpty()){
 			return playerList;
@@ -106,7 +103,7 @@ public class Window extends JFrame {
 	}
 
 	private ArrayList<Treasure> getTreasureList(HashMap<String, Treasure> treasures) {
-		treasureList = new ArrayList<Treasure>();
+		ArrayList<Treasure> treasureList = new ArrayList<Treasure>();
 		
 		if (treasures.isEmpty())
 			return treasureList;
@@ -120,10 +117,13 @@ public class Window extends JFrame {
 	}
 
 	private void addKeyListener() {
-		if (playerList.size() > 1 && !keylistenrAdded) {
+		if (keylistenrAdded)
+			return;
+		
+		if (playerList.size() > 1) {
 			this.addKeyListener(myKeylistener);
 			keylistenrAdded = true;
-		} else if (playerList.size() <= 1 && keylistenrAdded){
+		} else if (playerList.size() <= 1){
 			this.removeKeyListener(myKeylistener);
 			keylistenrAdded = false;
 		}
@@ -180,6 +180,7 @@ public class Window extends JFrame {
 		// Create panel p1 for the scores at the left part of the window
 		if (p1 == null){
 			p1 = new JPanel();
+			add(p1, BorderLayout.WEST);
 		}
 		
 		p1.removeAll();
@@ -243,6 +244,7 @@ public class Window extends JFrame {
 					p2.add(btn);
 				}
 			}
+			add(p2, BorderLayout.EAST);
 		}
 		
 		for (int r = 0; r < N; r++) {
@@ -289,7 +291,7 @@ public class Window extends JFrame {
 		}
 
 		if (action == PlayerAction.QUIT) {
-			localGame.closeGame();
+			localGame.terminateProcess();;
 			return;
 		}
 
@@ -299,10 +301,10 @@ public class Window extends JFrame {
 	public void updateMaze(Maze newMaze) {
 		// update the GUI according to the maze
 
-		playerList = null;
-		treasureList = null;
-		playerList = getPlayerList(newMaze.getPlayers());
-		treasureList = getTreasureList(newMaze.getTreasures());
+		playerList.clear();
+		treasureList.clear();
+		playerList.addAll(getPlayerList(newMaze.getPlayers()));
+		treasureList.addAll(getTreasureList(newMaze.getTreasures()));
 
 		updateTableData();
 		updateAllPositions();

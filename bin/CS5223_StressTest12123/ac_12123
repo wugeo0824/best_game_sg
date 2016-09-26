@@ -1,126 +1,116 @@
 Game starting for player: ac players already in game: 0
-Here is BackUp. Primary server at ab10.0.1.631099
-player ac want to JOIN
+Player ac has been added to maze true
+Got message: player ab want to JOIN
+Player ab has been added to maze true
+Got message: player ad want to JOIN
+Player ad has been added to maze true
+Got message: player ae want to JOIN
+Player ae has been added to maze true
 Successfully started player at [ac10.0.1.631099]
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-player ac want to MOVE_LEFT
-Received message from primary
-player ac want to MOVE_DOWN
-Received message from primary
-player ac want to MOVE_RIGHT
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-player ac want to MOVE_LEFT
-Received message from primary
-player ac want to MOVE_DOWN
-Received message from primary
-player ac want to MOVE_RIGHT
-Received message from primary
-player ac want to MOVE_RIGHT
-Received message from primary
-player ac want to MOVE_UP
-Received message from primary
-player ac want to MOVE_UP
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-player ac want to MOVE_LEFT
-Received message from primary
-player ac want to MOVE_DOWN
-Received message from primary
-player ac want to MOVE_RIGHT
-Received message from primary
-player ac want to MOVE_LEFT
-Received message from primary
-player ac want to MOVE_DOWN
-Received message from primary
-player ac want to MOVE_LEFT
-Received message from primary
-player ac want to MOVE_DOWN
-Received message from primary
-player ac want to MOVE_RIGHT
-Received message from primary
-player ac want to MOVE_UP
-Received message from primary
-player ac want to MOVE_LEFT
-Received message from primary
-player ac want to MOVE_LEFT
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-player ac want to MOVE_LEFT
-Received message from primary
-player ac want to MOVE_DOWN
-Received message from primary
-player ac want to MOVE_RIGHT
-Received message from primary
-player ac want to MOVE_LEFT
-Received message from primary
-player ac want to MOVE_DOWN
-Received message from primary
-player ac want to MOVE_RIGHT
-Received message from primary
-player ac want to MOVE_UP
-Received message from primary
-player ac want to MOVE_UP
-Received message from primary
-player ac want to MOVE_UP
-Received message from primary
-player ac want to MOVE_UP
-Received message from primary
-player ac want to MOVE_UP
-Received message from primary
-player ac want to MOVE_LEFT
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
-Received message from primary
+Got message: player ad want to MOVE_UP
+Got message: player ad want to MOVE_LEFT
+Got message: player ad want to MOVE_DOWN
+Got message: player ad want to MOVE_RIGHT
+Got message: player ab want to MOVE_LEFT
+Got message: player ab want to MOVE_DOWN
+Got message: player ab want to MOVE_RIGHT
+Got message: player ae want to MOVE_LEFT
+Got message: player ae want to MOVE_DOWN
+Got message: player ae want to MOVE_RIGHT
+Got message: player ae want to MOVE_LEFT
+Got message: player ae want to MOVE_DOWN
+Got message: player ae want to MOVE_LEFT
+Got message: player ae want to MOVE_DOWN
+Got message: player ae want to MOVE_RIGHT
+Got message: player ab want to MOVE_LEFT
+Got message: player ab want to MOVE_DOWN
+Got message: player ab want to MOVE_RIGHT
+Got message: player ab want to MOVE_LEFT
+Got message: player ab want to MOVE_DOWN
+Got message: player ab want to MOVE_RIGHT
+Got message: player ad want to MOVE_LEFT
+Got message: player ad want to MOVE_DOWN
+Got message: player ad want to MOVE_RIGHT
+Got message: player ad want to MOVE_LEFT
+Got message: player ad want to MOVE_DOWN
+Got message: player ad want to MOVE_RIGHT
+Got message: player ae want to MOVE_UP
+Got message: player ae want to MOVE_LEFT
+Got message: player ae want to MOVE_DOWN
+Got message: player ae want to MOVE_RIGHT
+Got message: player ae want to MOVE_LEFT
+Got message: player ae want to MOVE_DOWN
+Got message: player ae want to MOVE_UP
+Got message: player ad want to MOVE_LEFT
+Got message: player ad want to MOVE_DOWN
+Got message: player ad want to MOVE_RIGHT
+Got message: player ad want to MOVE_RIGHT
+Got message: player ad want to MOVE_RIGHT
+Got message: player ad want to MOVE_RIGHT
+Got message: player ad want to MOVE_RIGHT
+Got message: player ad want to MOVE_RIGHT
+Got message: player ad want to MOVE_DOWN
+Got message: player ad want to MOVE_LEFT
+Got message: player ad want to MOVE_DOWN
+Got message: player ad want to MOVE_RIGHT
+Got message: player ab want to MOVE_LEFT
+Got message: player ab want to MOVE_DOWN
+Got message: player ab want to MOVE_RIGHT
+Got message: player ab want to MOVE_LEFT
+Got message: player ab want to MOVE_DOWN
+Got message: player ab want to MOVE_RIGHT
+Got message: player ad want to MOVE_LEFT
+Got message: player ad want to MOVE_DOWN
+Got message: player ad want to MOVE_RIGHT
+Got message: player ad want to MOVE_LEFT
+Got message: player ad want to MOVE_DOWN
+Got message: player ad want to MOVE_RIGHT
+Got message: player ad want to MOVE_LEFT
+Got message: player ad want to MOVE_RIGHT
+Got message: player ad want to MOVE_RIGHT
+Got message: player ad want to MOVE_RIGHT
+Got message: player ae want to MOVE_UP
+Got message: player ae want to MOVE_LEFT
+Got message: player ae want to MOVE_DOWN
+Got message: player ae want to MOVE_RIGHT
+Got message: player ae want to MOVE_LEFT
+Got message: player ae want to MOVE_DOWN
+Got message: player ae want to MOVE_RIGHT
+Got message: player ae want to MOVE_RIGHT
+Got message: player ae want to MOVE_RIGHT
+Got message: player ae want to MOVE_RIGHT
+Got message: player af want to JOIN
+Player af has been added to maze true
+Got message: player af want to MOVE_LEFT
+Got message: player af want to MOVE_DOWN
+Got message: player af want to MOVE_RIGHT
+Got message: player af want to MOVE_LEFT
+Got message: player af want to MOVE_DOWN
+Got message: player af want to MOVE_LEFT
+Got message: player ae want to MOVE_LEFT
+Got message: player ae want to MOVE_DOWN
+Got message: player ae want to MOVE_RIGHT
+Got message: player ae want to MOVE_LEFT
+Got message: player ae want to MOVE_DOWN
+Got message: player ae want to MOVE_RIGHT
+Got message: player ae want to MOVE_LEFT
+Got message: player ae want to MOVE_LEFT
+Got message: player ae want to MOVE_DOWN
+Got message: player ae want to MOVE_RIGHT
+Got message: player ae want to MOVE_RIGHT
+Got message: player ae want to MOVE_RIGHT
+Got message: player ae want to MOVE_LEFT
+Got message: player ae want to MOVE_DOWN
+Got message: player ae want to MOVE_RIGHT
+Got message: player ae want to MOVE_DOWN
+Got message: player ae want to MOVE_DOWN
+Got message: player ae want to MOVE_UP
+Got message: player ae want to MOVE_UP
+Got message: player ae want to MOVE_LEFT
+Got message: player ae want to MOVE_LEFT
+Got message: player ae want to MOVE_LEFT
+Got message: player ae want to MOVE_UP
+Got message: player ae want to MOVE_LEFT
+Got message: player ae want to MOVE_LEFT
+Got message: player ae want to MOVE_UP
+Got message: player ae want to MOVE_UP

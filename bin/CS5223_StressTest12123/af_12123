@@ -1,9 +1,20 @@
 Game starting for player: af players already in game: 4
-Here is Normal. Primary server at ab10.0.1.631099
-BackUp server at ac10.0.1.631099
-Here is Normal. Primary server at ab10.0.1.631099
-BackUp server at ac10.0.1.631099
+Here is Normal. Primary server at ac10.0.1.631099
+BackUp server at ab10.0.1.631099
+Here is Normal. Primary server at ac10.0.1.631099
+BackUp server at ab10.0.1.631099
 player af want to JOIN
-playerMadeAMove error, primary is down
-playerMadeAMove error, backUp also failed
-player af want to JOIN
+Successfully started player at [af10.0.1.631099]
+Received message from primary
+player af want to MOVE_LEFT
+Received message from primary
+player af want to MOVE_DOWN
+Received message from primary
+player af want to MOVE_RIGHT
+Received message from primary
+player af want to MOVE_LEFT
+Received message from primary
+player af want to MOVE_DOWN
+Received message from primary
+player af want to MOVE_LEFT
+Received message from primary

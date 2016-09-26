@@ -58,7 +58,7 @@ public class Maze implements Serializable {
 	 */
 
 	
-	public synchronized void addPlayer(String playerKey, Player player) {
+	public synchronized boolean addPlayer(String playerKey, Player player) {
 		// we only do N*2 times of trials
 		// there wont be empty spaces more than that amount
 		int trials = size * size;
@@ -68,9 +68,12 @@ public class Maze implements Serializable {
 				player.setCurrentLocation(random);
 				players.put(playerKey, player);
 				trials = -1;
+				return true;
 			}
 			trials --;
 		}
+		
+		return false;
 	}
 
 	public HashMap<String, Player> getPlayers() {

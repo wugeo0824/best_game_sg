@@ -13,6 +13,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
 
+import game.GameNode;
 import model.Address;
 import utilities.Constants;
 
@@ -23,12 +24,13 @@ import utilities.Constants;
 public class TrackerImpl extends UnicastRemoteObject implements Tracker {
 	private static final long serialVersionUID = 4262700063105105025L;
 
-	public int port, N, K;
+	private int port, N, K;
 	/*
 	 * List of RMI naming of all GameNode We use Player name as RMI naming for
 	 * each GameNode
 	 */
 	Vector<Address> nodes;
+	private static String ip;
 
 	public TrackerImpl(int port, int N, int K) throws RemoteException {
 		this.port = port;
@@ -49,7 +51,7 @@ public class TrackerImpl extends UnicastRemoteObject implements Tracker {
 		int K = Integer.parseInt(args[2]);
 
 		// Get IP address of current machine
-		String ip = InetAddress.getLocalHost().getHostAddress();
+		ip = InetAddress.getLocalHost().getHostAddress();
 		String trackerNaming = Constants.TRACKER_NAME;
 		String address = "rmi://" + ip + ":" + port + "/" + trackerNaming;
 
@@ -111,39 +113,39 @@ public class TrackerImpl extends UnicastRemoteObject implements Tracker {
 	}
 
 	@Override
-	public synchronized void addNode(Address node) throws RemoteException {
+	public synchronized int addNode(Address address, GameNode gameNode) throws RemoteException {
 		// Add to list of game node names kept by Tracker
-		nodes.add(node);
-
-		System.out.println("Successfully register node [" + node.getKey() + "]");
-
+		nodes.add(address);
+		bindGameNodeToRmi(address, gameNode);
+		System.out.println("Successfully register node [" + address.getKey() + "]");
+		return nodes.size();
 	}
-
-//	@Override
-//	public void updateNodesList(Vector<Address> updatedNodes) throws RemoteException {
-//		for (Address address:nodes){
-//			if (!hasNode(updatedNodes, address)){
-//				removeNode(address);
-//			}
-//		}
-//		nodes.clear();
-//		nodes.addAll(updatedNodes);
-//	}
-
-	private synchronized void removeNode(Address node) {
+	
+	private static void bindGameNodeToRmi(Address address, GameNode gameNode) {
 		Registry registry;
 		try {
-			registry = LocateRegistry.getRegistry(node.getHost(), node.getPort());
-			registry.unbind(node.getKey());
+			registry = LocateRegistry.getRegistry(address.getHost(), address.getPort());
+			registry.bind(address.getKey(), gameNode);
 		} catch (RemoteException e) {
 			e.printStackTrace();
-			System.out.println("unbind game failed: " + e.getLocalizedMessage());
-		} catch (NotBoundException e) {
-			// TODO Auto-generated catch block
+			System.out.println("bind game failed: " + e.getLocalizedMessage());
+		} catch (AlreadyBoundException e) {
 			e.printStackTrace();
-			System.out.println("Player with such user name does not exist in game");
+			System.out.println("Player with such user name has already existed in game");
 		}
-		
+	}
+
+	private static void printHelp() {
+		System.out.println("java Tracker [port-number] [N] [K]");
+	}
+
+	@Override
+	public int getPort() throws RemoteException {
+		return port;
+	}
+
+	@Override
+	public synchronized boolean deleteNode(Address node) throws RemoteException {
 		boolean result = false;;
 		Address target = null;
 		
@@ -159,27 +161,24 @@ public class TrackerImpl extends UnicastRemoteObject implements Tracker {
 		}
 		
 		System.out.println("Player " + node.getUserName() + " is removed: " +result);
-	}
-	
-//	private boolean hasNode(Vector<Address> vector, Address node){
-//		for (Address existing:vector){
-//			if (existing.sameAs(node))
-//				return true;
-//		}
-//		return false;
-//	}
-
-	private static void printHelp() {
-		System.out.println("java Tracker [port-number] [N] [K]");
-	}
-
-	@Override
-	public int getPort() throws RemoteException {
-		return port;
+		
+		Registry registry;
+		try {
+			registry = LocateRegistry.getRegistry(node.getHost(), node.getPort());
+			registry.unbind(node.getKey());
+		} catch (RemoteException e) {
+			e.printStackTrace();
+			System.out.println("unbind game failed: " + e.getLocalizedMessage());
+		} catch (NotBoundException e) {
+			//e.printStackTrace();
+			System.out.println("Player with such user name does not exist in game, or has already quit");
+		}
+		
+		return true;
 	}
 
 	@Override
-	public synchronized void deleteNode(Address node) throws RemoteException {
-		removeNode(node);
+	public String getIP() throws RemoteException {
+		return ip;
 	}
 }

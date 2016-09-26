@@ -13,7 +13,11 @@ public interface GameNode extends Remote {
 
 	//void startProcessingMessages() throws RemoteException;
 	
-	void init() throws RemoteException;
+	void startAsPrimary() throws RemoteException;
+	
+	void startAsBackUp() throws RemoteException;
+	
+	void startNormally() throws RemoteException;
 
 	boolean enqueueNewMessage(ClientMessage message) throws RemoteException;
 

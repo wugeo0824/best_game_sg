@@ -1,8 +1,5 @@
 package game;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.rmi.AlreadyBoundException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -32,13 +29,12 @@ public class Game {
 		String ip = args[0];
 		int port = Integer.parseInt(args[1]);
 		userName = args[2];
-
-		// we are ignoring user's input, since we use the local host for tracker
-		try {
-			ip = InetAddress.getLocalHost().getHostAddress();
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
+		
+		if (userName.length() != 2){
+			System.out.println("Game start failed. user name must be only 2 charaters long");
+			System.exit(0);
 		}
+
 		// contact tracker
 		Tracker tracker = contactTracker(ip, port);
 
@@ -57,9 +53,11 @@ public class Game {
 
 		} catch (RemoteException e) {
 			System.out.println("Tracker finding failed: " + e.getLocalizedMessage());
+			System.exit(0);
 		} catch (NotBoundException e) {
 			e.printStackTrace();
 			System.out.println("Please start tracker first");
+			System.exit(0);
 		}
 
 		return null;
@@ -71,9 +69,7 @@ public class Game {
 
 		try {
 			players = tracker.getNodes();
-			String ip = InetAddress.getLocalHost().getHostAddress();
-			int port = tracker.getPort();
-			Address address = new Address(ip, port, userName);
+			Address address = new Address(tracker.getIP(), tracker.getPort(), userName);
 			
 			for (Address existingPlayer:players){
 				if (existingPlayer.sameAs(address)){
@@ -82,29 +78,23 @@ public class Game {
 				}
 			}
 
-			System.out.println("Game starting for player: " + userName + " players in game: " + players.size());
+			System.out.println("Game starting for player: " + userName + " players already in game: " + players.size());
 			GameNode gameNode = new GameNodeImpl(tracker, players, tracker.getN(), tracker.getK(), address);
-			bindGameNodeToRmi(address, gameNode);
-			gameNode.init();
+			int currentSize = tracker.addNode(address, gameNode);
+			if (currentSize == 1){
+				gameNode.startAsPrimary();
+			}else if (currentSize == 2){
+				gameNode.startAsBackUp();
+			}else {
+				gameNode.startNormally();
+			}
+			
 
-		} catch (RemoteException | UnknownHostException e) {
+		} catch (RemoteException e) {
 			System.out.println("Tracker finding failed: " + e.getLocalizedMessage());
 			e.printStackTrace();
+			System.exit(0);
 		}
 
-	}
-
-	private static void bindGameNodeToRmi(Address address, GameNode gameNode) {
-		Registry registry;
-		try {
-			registry = LocateRegistry.getRegistry(address.getHost(), address.getPort());
-			registry.bind(address.getKey(), gameNode);
-		} catch (RemoteException e) {
-			e.printStackTrace();
-			System.out.println("bind game failed: " + e.getLocalizedMessage());
-		} catch (AlreadyBoundException e) {
-			e.printStackTrace();
-			System.out.println("Player with such user name has already existed in game");
-		}
 	}
 }

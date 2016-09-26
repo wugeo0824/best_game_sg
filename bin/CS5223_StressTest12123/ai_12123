@@ -1,3 +1,8 @@
-Game starting for player: ai players in game: 5
+Game starting for player: ai players already in game: 4
+Here is Normal. Primary server at ac10.0.1.631099
+BackUp server at ae10.0.1.631099
+Here is Normal. Primary server at ac10.0.1.631099
+BackUp server at ae10.0.1.631099
 player ai want to JOIN
-Successfully started player at [ai10.0.1.631099] with number of players 5
+Successfully started player at [ai10.0.1.631099]
+Received message from primary

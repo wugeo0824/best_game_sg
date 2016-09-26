@@ -271,9 +271,11 @@ public class Window extends JFrame {
 		localGame.playerMadeAMove(action);
 	}
 
-	public void updateGame(Maze newMaze) {
+	public void updateMaze(Maze newMaze) {
 		// update the GUI according to the maze
 
+		playerList = null;
+		treasureList = null;
 		playerList = getPlayerList(newMaze.getPlayers());
 		treasureList = getTreasureList(newMaze.getTreasures());
 

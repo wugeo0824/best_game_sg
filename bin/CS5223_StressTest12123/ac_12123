@@ -1,276 +1,126 @@
-Game starting for player: ac players in game: 0
-ac is now back up
-Exception in thread "main" java.security.InvalidParameterException: player size is inconsistent
-	at game.GameNodeImpl.addNewPlayer(GameNodeImpl.java:313)
-	at game.GameNodeImpl.init(GameNodeImpl.java:98)
-	at game.Game.createNewGame(Game.java:88)
-	at game.Game.main(Game.java:46)
-java.rmi.ConnectException: Connection refused to host: 10.0.1.63; nested exception is: 
-	java.net.ConnectException: Connection refused
-	at sun.rmi.transport.tcp.TCPEndpoint.newSocket(TCPEndpoint.java:619)
-	at sun.rmi.transport.tcp.TCPChannel.createConnection(TCPChannel.java:216)
-	at sun.rmi.transport.tcp.TCPChannel.newConnection(TCPChannel.java:202)
-	at sun.rmi.server.UnicastRef.invoke(UnicastRef.java:130)
-	at java.rmi.server.RemoteObjectInvocationHandler.invokeRemoteMethod(RemoteObjectInvocationHandler.java:227)
-	at java.rmi.server.RemoteObjectInvocationHandler.invoke(RemoteObjectInvocationHandler.java:179)
-	at com.sun.proxy.$Proxy1.updateGame(Unknown Source)
-	at game.GameNodeImpl.findNewBackUp(GameNodeImpl.java:264)
-	at game.GameNodeImpl.becomePrimary(GameNodeImpl.java:214)
-	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
-	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.lang.reflect.Method.invoke(Method.java:497)
-	at sun.rmi.server.UnicastServerRef.dispatch(UnicastServerRef.java:323)
-	at sun.rmi.transport.Transport$1.run(Transport.java:200)
-	at sun.rmi.transport.Transport$1.run(Transport.java:197)
-	at java.security.AccessController.doPrivileged(Native Method)
-	at sun.rmi.transport.Transport.serviceCall(Transport.java:196)
-	at sun.rmi.transport.tcp.TCPTransport.handleMessages(TCPTransport.java:568)
-	at sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run0(TCPTransport.java:826)
-	at sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.lambda$run$256(TCPTransport.java:683)
-	at java.security.AccessController.doPrivileged(Native Method)
-	at sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run(TCPTransport.java:682)
-	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
-	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
-	at java.lang.Thread.run(Thread.java:745)
-Caused by: java.net.ConnectException: Connection refused
-	at java.net.PlainSocketImpl.socketConnect(Native Method)
-	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:350)
-	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:206)
-	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:188)
-	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
-	at java.net.Socket.connect(Socket.java:589)
-	at java.net.Socket.connect(Socket.java:538)
-	at java.net.Socket.<init>(Socket.java:434)
-	at java.net.Socket.<init>(Socket.java:211)
-	at sun.rmi.transport.proxy.RMIDirectSocketFactory.createSocket(RMIDirectSocketFactory.java:40)
-	at sun.rmi.transport.proxy.RMIMasterSocketFactory.createSocket(RMIMasterSocketFactory.java:148)
-	at sun.rmi.transport.tcp.TCPEndpoint.newSocket(TCPEndpoint.java:613)
-	... 25 more
-Cannot locate the node, this should not happen if the list is up to date
-Got message: player aj want to JOIN
-Exception in thread "Thread-1" java.security.InvalidParameterException: player size is inconsistent
-	at game.GameNodeImpl.addNewPlayer(GameNodeImpl.java:313)
-	at game.GameNodeImpl.processMessageFromClient(GameNodeImpl.java:163)
-	at game.GameNodeImpl.access$1(GameNodeImpl.java:149)
-	at game.GameNodeImpl$1.run(GameNodeImpl.java:142)
-	at java.lang.Thread.run(Thread.java:745)
-java.rmi.ConnectException: Connection refused to host: 10.0.1.63; nested exception is: 
-	java.net.ConnectException: Connection refused
-	at sun.rmi.transport.tcp.TCPEndpoint.newSocket(TCPEndpoint.java:619)
-	at sun.rmi.transport.tcp.TCPChannel.createConnection(TCPChannel.java:216)
-	at sun.rmi.transport.tcp.TCPChannel.newConnection(TCPChannel.java:202)
-	at sun.rmi.server.UnicastRef.invoke(UnicastRef.java:130)
-	at java.rmi.server.RemoteObjectInvocationHandler.invokeRemoteMethod(RemoteObjectInvocationHandler.java:227)
-	at java.rmi.server.RemoteObjectInvocationHandler.invoke(RemoteObjectInvocationHandler.java:179)
-	at com.sun.proxy.$Proxy1.updateGame(Unknown Source)
-	at game.GameNodeImpl.findNewBackUp(GameNodeImpl.java:264)
-	at game.GameNodeImpl.becomePrimary(GameNodeImpl.java:214)
-	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
-	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.lang.reflect.Method.invoke(Method.java:497)
-	at sun.rmi.server.UnicastServerRef.dispatch(UnicastServerRef.java:323)
-	at sun.rmi.transport.Transport$1.run(Transport.java:200)
-	at sun.rmi.transport.Transport$1.run(Transport.java:197)
-	at java.security.AccessController.doPrivileged(Native Method)
-	at sun.rmi.transport.Transport.serviceCall(Transport.java:196)
-	at sun.rmi.transport.tcp.TCPTransport.handleMessages(TCPTransport.java:568)
-	at sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run0(TCPTransport.java:826)
-	at sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.lambda$run$256(TCPTransport.java:683)
-	at java.security.AccessController.doPrivileged(Native Method)
-	at sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run(TCPTransport.java:682)
-	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
-	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
-	at java.lang.Thread.run(Thread.java:745)
-Caused by: java.net.ConnectException: Connection refused
-	at java.net.PlainSocketImpl.socketConnect(Native Method)
-	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:350)
-	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:206)
-	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:188)
-	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
-	at java.net.Socket.connect(Socket.java:589)
-	at java.net.Socket.connect(Socket.java:538)
-	at java.net.Socket.<init>(Socket.java:434)
-	at java.net.Socket.<init>(Socket.java:211)
-	at sun.rmi.transport.proxy.RMIDirectSocketFactory.createSocket(RMIDirectSocketFactory.java:40)
-	at sun.rmi.transport.proxy.RMIMasterSocketFactory.createSocket(RMIMasterSocketFactory.java:148)
-	at sun.rmi.transport.tcp.TCPEndpoint.newSocket(TCPEndpoint.java:613)
-	... 25 more
-Cannot locate the node, this should not happen if the list is up to date
-Got message: player ak want to JOIN
-Exception in thread "Thread-3" java.security.InvalidParameterException: primary server is not the first node in the tracker list
-	at game.GameNodeImpl$2.run(GameNodeImpl.java:337)
-	at java.lang.Thread.run(Thread.java:745)
-java.rmi.ConnectException: Connection refused to host: 10.0.1.63; nested exception is: 
-	java.net.ConnectException: Connection refused
-	at sun.rmi.transport.tcp.TCPEndpoint.newSocket(TCPEndpoint.java:619)
-	at sun.rmi.transport.tcp.TCPChannel.createConnection(TCPChannel.java:216)
-	at sun.rmi.transport.tcp.TCPChannel.newConnection(TCPChannel.java:202)
-	at sun.rmi.server.UnicastRef.invoke(UnicastRef.java:130)
-	at java.rmi.server.RemoteObjectInvocationHandler.invokeRemoteMethod(RemoteObjectInvocationHandler.java:227)
-	at java.rmi.server.RemoteObjectInvocationHandler.invoke(RemoteObjectInvocationHandler.java:179)
-	at com.sun.proxy.$Proxy1.updateGame(Unknown Source)
-	at game.GameNodeImpl.findNewBackUp(GameNodeImpl.java:264)
-	at game.GameNodeImpl.becomePrimary(GameNodeImpl.java:214)
-	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
-	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.lang.reflect.Method.invoke(Method.java:497)
-	at sun.rmi.server.UnicastServerRef.dispatch(UnicastServerRef.java:323)
-	at sun.rmi.transport.Transport$1.run(Transport.java:200)
-	at sun.rmi.transport.Transport$1.run(Transport.java:197)
-	at java.security.AccessController.doPrivileged(Native Method)
-	at sun.rmi.transport.Transport.serviceCall(Transport.java:196)
-	at sun.rmi.transport.tcp.TCPTransport.handleMessages(TCPTransport.java:568)
-	at sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run0(TCPTransport.java:826)
-	at sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.lambda$run$256(TCPTransport.java:683)
-	at java.security.AccessController.doPrivileged(Native Method)
-	at sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run(TCPTransport.java:682)
-	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
-	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
-	at java.lang.Thread.run(Thread.java:745)
-Caused by: java.net.ConnectException: Connection refused
-	at java.net.PlainSocketImpl.socketConnect(Native Method)
-	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:350)
-	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:206)
-	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:188)
-	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
-	at java.net.Socket.connect(Socket.java:589)
-	at java.net.Socket.connect(Socket.java:538)
-	at java.net.Socket.<init>(Socket.java:434)
-	at java.net.Socket.<init>(Socket.java:211)
-	at sun.rmi.transport.proxy.RMIDirectSocketFactory.createSocket(RMIDirectSocketFactory.java:40)
-	at sun.rmi.transport.proxy.RMIMasterSocketFactory.createSocket(RMIMasterSocketFactory.java:148)
-	at sun.rmi.transport.tcp.TCPEndpoint.newSocket(TCPEndpoint.java:613)
-	... 25 more
-Cannot locate the node, this should not happen if the list is up to date
-java.rmi.ConnectException: Connection refused to host: 10.0.1.63; nested exception is: 
-	java.net.ConnectException: Connection refused
-	at sun.rmi.transport.tcp.TCPEndpoint.newSocket(TCPEndpoint.java:619)
-	at sun.rmi.transport.tcp.TCPChannel.createConnection(TCPChannel.java:216)
-	at sun.rmi.transport.tcp.TCPChannel.newConnection(TCPChannel.java:202)
-	at sun.rmi.server.UnicastRef.invoke(UnicastRef.java:130)
-	at java.rmi.server.RemoteObjectInvocationHandler.invokeRemoteMethod(RemoteObjectInvocationHandler.java:227)
-	at java.rmi.server.RemoteObjectInvocationHandler.invoke(RemoteObjectInvocationHandler.java:179)
-	at com.sun.proxy.$Proxy1.updateGame(Unknown Source)
-	at game.GameNodeImpl.findNewBackUp(GameNodeImpl.java:264)
-	at game.GameNodeImpl.becomePrimary(GameNodeImpl.java:214)
-	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
-	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.lang.reflect.Method.invoke(Method.java:497)
-	at sun.rmi.server.UnicastServerRef.dispatch(UnicastServerRef.java:323)
-	at sun.rmi.transport.Transport$1.run(Transport.java:200)
-	at sun.rmi.transport.Transport$1.run(Transport.java:197)
-	at java.security.AccessController.doPrivileged(Native Method)
-	at sun.rmi.transport.Transport.serviceCall(Transport.java:196)
-	at sun.rmi.transport.tcp.TCPTransport.handleMessages(TCPTransport.java:568)
-	at sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run0(TCPTransport.java:826)
-	at sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.lambda$run$256(TCPTransport.java:683)
-	at java.security.AccessController.doPrivileged(Native Method)
-	at sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run(TCPTransport.java:682)
-	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
-	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
-	at java.lang.Thread.run(Thread.java:745)
-Caused by: java.net.ConnectException: Connection refused
-	at java.net.PlainSocketImpl.socketConnect(Native Method)
-	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:350)
-	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:206)
-	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:188)
-	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
-	at java.net.Socket.connect(Socket.java:589)
-	at java.net.Socket.connect(Socket.java:538)
-	at java.net.Socket.<init>(Socket.java:434)
-	at java.net.Socket.<init>(Socket.java:211)
-	at sun.rmi.transport.proxy.RMIDirectSocketFactory.createSocket(RMIDirectSocketFactory.java:40)
-	at sun.rmi.transport.proxy.RMIMasterSocketFactory.createSocket(RMIMasterSocketFactory.java:148)
-	at sun.rmi.transport.tcp.TCPEndpoint.newSocket(TCPEndpoint.java:613)
-	... 25 more
-Cannot locate the node, this should not happen if the list is up to date
-java.rmi.ConnectException: Connection refused to host: 10.0.1.63; nested exception is: 
-	java.net.ConnectException: Connection refused
-	at sun.rmi.transport.tcp.TCPEndpoint.newSocket(TCPEndpoint.java:619)
-	at sun.rmi.transport.tcp.TCPChannel.createConnection(TCPChannel.java:216)
-	at sun.rmi.transport.tcp.TCPChannel.newConnection(TCPChannel.java:202)
-	at sun.rmi.server.UnicastRef.invoke(UnicastRef.java:130)
-	at java.rmi.server.RemoteObjectInvocationHandler.invokeRemoteMethod(RemoteObjectInvocationHandler.java:227)
-	at java.rmi.server.RemoteObjectInvocationHandler.invoke(RemoteObjectInvocationHandler.java:179)
-	at com.sun.proxy.$Proxy1.updateGame(Unknown Source)
-	at game.GameNodeImpl.findNewBackUp(GameNodeImpl.java:264)
-	at game.GameNodeImpl.becomePrimary(GameNodeImpl.java:214)
-	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
-	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.lang.reflect.Method.invoke(Method.java:497)
-	at sun.rmi.server.UnicastServerRef.dispatch(UnicastServerRef.java:323)
-	at sun.rmi.transport.Transport$1.run(Transport.java:200)
-	at sun.rmi.transport.Transport$1.run(Transport.java:197)
-	at java.security.AccessController.doPrivileged(Native Method)
-	at sun.rmi.transport.Transport.serviceCall(Transport.java:196)
-	at sun.rmi.transport.tcp.TCPTransport.handleMessages(TCPTransport.java:568)
-	at sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run0(TCPTransport.java:826)
-	at sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.lambda$run$256(TCPTransport.java:683)
-	at java.security.AccessController.doPrivileged(Native Method)
-	at sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run(TCPTransport.java:682)
-	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
-	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
-	at java.lang.Thread.run(Thread.java:745)
-Caused by: java.net.ConnectException: Connection refused
-	at java.net.PlainSocketImpl.socketConnect(Native Method)
-	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:350)
-	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:206)
-	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:188)
-	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
-	at java.net.Socket.connect(Socket.java:589)
-	at java.net.Socket.connect(Socket.java:538)
-	at java.net.Socket.<init>(Socket.java:434)
-	at java.net.Socket.<init>(Socket.java:211)
-	at sun.rmi.transport.proxy.RMIDirectSocketFactory.createSocket(RMIDirectSocketFactory.java:40)
-	at sun.rmi.transport.proxy.RMIMasterSocketFactory.createSocket(RMIMasterSocketFactory.java:148)
-	at sun.rmi.transport.tcp.TCPEndpoint.newSocket(TCPEndpoint.java:613)
-	... 25 more
-Cannot locate the node, this should not happen if the list is up to date
-java.rmi.ConnectException: Connection refused to host: 10.0.1.63; nested exception is: 
-	java.net.ConnectException: Connection refused
-	at sun.rmi.transport.tcp.TCPEndpoint.newSocket(TCPEndpoint.java:619)
-	at sun.rmi.transport.tcp.TCPChannel.createConnection(TCPChannel.java:216)
-	at sun.rmi.transport.tcp.TCPChannel.newConnection(TCPChannel.java:202)
-	at sun.rmi.server.UnicastRef.invoke(UnicastRef.java:130)
-	at java.rmi.server.RemoteObjectInvocationHandler.invokeRemoteMethod(RemoteObjectInvocationHandler.java:227)
-	at java.rmi.server.RemoteObjectInvocationHandler.invoke(RemoteObjectInvocationHandler.java:179)
-	at com.sun.proxy.$Proxy1.updateGame(Unknown Source)
-	at game.GameNodeImpl.findNewBackUp(GameNodeImpl.java:264)
-	at game.GameNodeImpl.becomePrimary(GameNodeImpl.java:214)
-	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
-	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.lang.reflect.Method.invoke(Method.java:497)
-	at sun.rmi.server.UnicastServerRef.dispatch(UnicastServerRef.java:323)
-	at sun.rmi.transport.Transport$1.run(Transport.java:200)
-	at sun.rmi.transport.Transport$1.run(Transport.java:197)
-	at java.security.AccessController.doPrivileged(Native Method)
-	at sun.rmi.transport.Transport.serviceCall(Transport.java:196)
-	at sun.rmi.transport.tcp.TCPTransport.handleMessages(TCPTransport.java:568)
-	at sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run0(TCPTransport.java:826)
-	at sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.lambda$run$256(TCPTransport.java:683)
-	at java.security.AccessController.doPrivileged(Native Method)
-	at sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run(TCPTransport.java:682)
-	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
-	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
-	at java.lang.Thread.run(Thread.java:745)
-Caused by: java.net.ConnectException: Connection refused
-	at java.net.PlainSocketImpl.socketConnect(Native Method)
-	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:350)
-	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:206)
-	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:188)
-	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
-	at java.net.Socket.connect(Socket.java:589)
-	at java.net.Socket.connect(Socket.java:538)
-	at java.net.Socket.<init>(Socket.java:434)
-	at java.net.Socket.<init>(Socket.java:211)
-	at sun.rmi.transport.proxy.RMIDirectSocketFactory.createSocket(RMIDirectSocketFactory.java:40)
-	at sun.rmi.transport.proxy.RMIMasterSocketFactory.createSocket(RMIMasterSocketFactory.java:148)
-	at sun.rmi.transport.tcp.TCPEndpoint.newSocket(TCPEndpoint.java:613)
-	... 25 more
-Cannot locate the node, this should not happen if the list is up to date
+Game starting for player: ac players already in game: 0
+Here is BackUp. Primary server at ab10.0.1.631099
+player ac want to JOIN
+Successfully started player at [ac10.0.1.631099]
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+player ac want to MOVE_LEFT
+Received message from primary
+player ac want to MOVE_DOWN
+Received message from primary
+player ac want to MOVE_RIGHT
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+player ac want to MOVE_LEFT
+Received message from primary
+player ac want to MOVE_DOWN
+Received message from primary
+player ac want to MOVE_RIGHT
+Received message from primary
+player ac want to MOVE_RIGHT
+Received message from primary
+player ac want to MOVE_UP
+Received message from primary
+player ac want to MOVE_UP
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+player ac want to MOVE_LEFT
+Received message from primary
+player ac want to MOVE_DOWN
+Received message from primary
+player ac want to MOVE_RIGHT
+Received message from primary
+player ac want to MOVE_LEFT
+Received message from primary
+player ac want to MOVE_DOWN
+Received message from primary
+player ac want to MOVE_LEFT
+Received message from primary
+player ac want to MOVE_DOWN
+Received message from primary
+player ac want to MOVE_RIGHT
+Received message from primary
+player ac want to MOVE_UP
+Received message from primary
+player ac want to MOVE_LEFT
+Received message from primary
+player ac want to MOVE_LEFT
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+player ac want to MOVE_LEFT
+Received message from primary
+player ac want to MOVE_DOWN
+Received message from primary
+player ac want to MOVE_RIGHT
+Received message from primary
+player ac want to MOVE_LEFT
+Received message from primary
+player ac want to MOVE_DOWN
+Received message from primary
+player ac want to MOVE_RIGHT
+Received message from primary
+player ac want to MOVE_UP
+Received message from primary
+player ac want to MOVE_UP
+Received message from primary
+player ac want to MOVE_UP
+Received message from primary
+player ac want to MOVE_UP
+Received message from primary
+player ac want to MOVE_UP
+Received message from primary
+player ac want to MOVE_LEFT
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary
+Received message from primary

@@ -4,6 +4,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.Vector;
 
+import game.GameNode;
 import model.Address;
 
 public interface Tracker extends Remote {
@@ -14,12 +15,14 @@ public interface Tracker extends Remote {
 	
 	Vector<Address> getNodes() throws RemoteException;
 
-	void addNode(Address node) throws RemoteException;
+	int addNode(Address node, GameNode gameNode) throws RemoteException;
 	
-	void deleteNode(Address node) throws RemoteException;
+	boolean deleteNode(Address node) throws RemoteException;
 
 	//void updateNodesList(Vector<Address> updatedNodes) throws RemoteException;
 	
 	int getPort() throws RemoteException;
+	
+	String getIP() throws RemoteException;
 
 }

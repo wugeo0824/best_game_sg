@@ -269,8 +269,13 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 	 */
 	private synchronized void updateBackUpServer() {
 		GameNode backUpNode = null;
-		if (backUpServer == null)
-			return;
+		
+		if (backUpServer == null){
+			Vector<Address> nodes = getNodesListFromTracker();
+			if (nodes.size()<2)
+				return;
+			backUpServer = nodes.get(1);
+		}
 		
 		try {
 			backUpNode = (GameNode) LocateRegistry.getRegistry(backUpServer.getHost(), backUpServer.getPort())

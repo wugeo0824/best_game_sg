@@ -278,7 +278,7 @@ public class Window extends JFrame {
 			} else if (key == KeyEvent.VK_0) {
 				action = PlayerAction.STAY;
 			}
-			System.out.println("Key " + e.toString() + "pressed");
+			System.out.println("Key " + action + " pressed");
 			processKeyInput(action);
 			action = null;
 			return;

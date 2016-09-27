@@ -27,9 +27,9 @@ public interface GameNode extends Remote {
 	
 	void becomePrimary() throws RemoteException;
 	
-	void becomeBackUp() throws RemoteException;
+	void becomeBackUp(Address primary) throws RemoteException;
 
-	void ping() throws RemoteException;
+	boolean ping() throws RemoteException;
 	
 	boolean updateGame(ServerMessage message) throws RemoteException;
 
@@ -38,6 +38,8 @@ public interface GameNode extends Remote {
 	Player getPlayer() throws RemoteException;
 	
 	Maze getMaze() throws RemoteException;
+	
+	Address getBackUpServerAddress() throws RemoteException;
 
 	//boolean joinGame(Address newPlayerAddress) throws RemoteException;
 

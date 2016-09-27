@@ -76,7 +76,7 @@ public class Maze implements Serializable {
 		return false;
 	}
 
-	public HashMap<String, Player> getPlayers() {
+	public synchronized HashMap<String, Player> getPlayers() {
 		return players;
 	}
 
@@ -84,7 +84,7 @@ public class Maze implements Serializable {
 		players.remove(playerKey);
 	}
 
-	private boolean isPlayerHere(Location location) {
+	private synchronized boolean isPlayerHere(Location location) {
 		for (Player existingPlayer : players.values()) {
 			if (existingPlayer.getCurrentLocation().sameAs(location))
 				return true;
@@ -137,13 +137,13 @@ public class Maze implements Serializable {
 	 * TREASURES
 	 */
 
-	private void initializeTreasures() {
+	private synchronized void initializeTreasures() {
 		for (int i = 0; i < numberOfTreasures; i++) {
 			generateNewTreasure();
 		}
 	}
 
-	private boolean isTreasureHere(Location location) {
+	private synchronized boolean isTreasureHere(Location location) {
 
 		for (Treasure existingTreasure : treasures.values()) {
 			if (existingTreasure.getLocation().sameAs(location))
@@ -153,7 +153,7 @@ public class Maze implements Serializable {
 		return false;
 	}
 
-	private void generateNewTreasure() {
+	private synchronized void generateNewTreasure() {
 		int trials = size * size;
 		while (trials >= 0) {
 			Location random = nextRandomLocation();
@@ -166,11 +166,11 @@ public class Maze implements Serializable {
 		}
 	}
 	
-	private void consumeTreasure(Location location){
+	private synchronized void consumeTreasure(Location location){
 		treasures.remove(location.getLocationId());
 	}
 	
-	public HashMap<String, Treasure> getTreasures() {
+	public synchronized HashMap<String, Treasure> getTreasures() {
 		return treasures;
 	}
 
@@ -178,18 +178,18 @@ public class Maze implements Serializable {
 	 * TREASURES END
 	 */
 
-	private Location nextRandomLocation() {
+	private synchronized Location nextRandomLocation() {
 		int x = rand.nextInt(size);
 		int y = rand.nextInt(size);
 
 		return new Location(x, y);
 	}
 
-	public int getSize() {
+	public synchronized int getSize() {
 		return size;
 	}
 
-	public int getNumberOfTreasures() {
+	public synchronized int getNumberOfTreasures() {
 		return numberOfTreasures;
 	}
 	
@@ -202,7 +202,7 @@ public class Maze implements Serializable {
 	 * @param location the location to be checked
 	 * @return true if valid
 	 */
-	private boolean isLocationValid(Location location) {
+	private synchronized boolean isLocationValid(Location location) {
 		if (location.getLocationX() >= size || location.getLocationY() >= size)
 			return false;
 		

@@ -226,7 +226,7 @@ public class Window extends JFrame {
 
 	public JPanel setAllPositions() {
 
-		btnName = getAllPositions();
+		getAllPositions();
 
 		// Create panel p2 for the positions at the right of the window
 		if (p2 == null) {

@@ -38,6 +38,8 @@ public class Address implements Serializable{
 	}
 	
 	public boolean sameAs(Address comparing) {
+		if (comparing == null)
+			return false;
 		
 		if (getHost().equals(comparing.getHost()) && getPort() == comparing.getPort() && getUserName().equals(comparing.getUserName()))
 			return true;

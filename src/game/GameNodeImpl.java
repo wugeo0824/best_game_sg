@@ -102,6 +102,7 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 		// primary should constantly check whether there is dead node
 		pinThread.start();
 
+		System.out.println("Here is Primary.");
 		System.out.println("Successfully started player at [" + here.getKey() + "]");
 	}
 
@@ -112,6 +113,7 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 		primaryServer = getNodesListFromTracker().get(0);
 		backUpServer = here;
 		isBackUp = true;
+		isPrimary = false;
 		System.out.println("Here is BackUp. Primary server at " + primaryServer.getKey());
 
 		// notify the GUI of the new game state (this is for nodes other than
@@ -228,7 +230,7 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 			callingAddress = callingNode.getAddress();
 
 			// if backUpServer has not set up yet
-			if (backUpServer == null) {
+			if (backUpServer == null || backUpServer.sameAs(here)) {
 				findNewBackUpAndUpdate();
 			} else if (!callingAddress.sameAs(backUpServer)) {
 				// update the back up server
@@ -320,21 +322,26 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 		// start from second one, since first one can be primary and we dont
 		// know (when primary quits game)
 		Vector<Address> nodes = getNodesListFromTracker();
+		
+		if (nodes == null || nodes.size() < 2)
+			return;
+		
 		for (int i = 1; i < nodes.size(); i++) {
 			Address address = nodes.get(i);
 			if (address != null && !address.sameAs(here) && !address.sameAs(primaryServer)
 					&& !address.sameAs(backUpServer)) {
 				try {
-					backUpServer = address;
-					backUpNode = (GameNode) LocateRegistry.getRegistry(backUpServer.getHost(), backUpServer.getPort())
-							.lookup(backUpServer.getKey());
+					backUpNode = (GameNode) LocateRegistry.getRegistry(address.getHost(), address.getPort())
+							.lookup(address.getKey());
 					backUpNode.updateGame(new ServerMessage(theMaze));
 					backUpNode.becomeBackUp(here);
+					backUpServer = address;
 
 					System.out.println(backUpNode.getAddress().getUserName() + " is now back up");
 					break;
 				} catch (NotBoundException | RemoteException e) {
 					// e.printStackTrace();
+					backUpServer = null;
 					System.out.println("Building new back up failed for player " + address.getUserName() + ", trying next node");
 					continue;
 				}
@@ -381,7 +388,7 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 	 * Regularly checks whether the players are still in game The checking
 	 * interval has been set to 5000ms => 5s
 	 */
-	static int pinCounter = 0;
+	static int pinCounter = -1;
 
 	private Runnable pinPlayersRunnable = new Runnable() {
 
@@ -402,14 +409,14 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 					synchronized (this) {
 						// we are skipping 0 and 1, since we are not checking
 						// primary and back up
-						if (pinCounter >= nodes.size()) {
-							pinCounter = 0;
+						if (pinCounter < 0) {
+							pinCounter = nodes.size() - 1; // the last one of nodes list
 						}
 						
 						System.out.println("Pin Thread pins");
 
 						findGameNode(nodes.get(pinCounter));
-						pinCounter++;
+						pinCounter--;
 					}
 				}
 			}
@@ -533,20 +540,20 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 			System.out.println("playerMadeAMove error, primary is down");
 
 			try {
-				GameNode backUp = (GameNode) LocateRegistry.getRegistry(backUpServer.getHost(), backUpServer.getPort())
+				GameNode nextPrimary = (GameNode) LocateRegistry.getRegistry(backUpServer.getHost(), backUpServer.getPort())
 						.lookup(backUpServer.getKey());
 
-				if (!backUp.isPrimary())
-					backUp.becomePrimary();
+				if (!nextPrimary.isPrimary())
+					nextPrimary.becomePrimary();
 
-				primaryServer = backUp.getAddress();
-				backUpServer = backUp.getBackUpServerAddress();
+				primaryServer = nextPrimary.getAddress();
+				backUpServer = nextPrimary.getBackUpServerAddress();
 
 				if (backUpServer.sameAs(here) && !isBackUp) {
 					becomeBackUp(primaryServer);
 				}
 
-				backUp.enqueueNewMessage(message);
+				nextPrimary.enqueueNewMessage(message);
 
 				return false;
 

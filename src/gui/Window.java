@@ -3,13 +3,12 @@ package gui;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
@@ -50,9 +49,12 @@ public class Window extends JFrame {
 	private static String tableTitle[] = { "Player", "Score" };
 	private JPanel p1;
 	private JPanel p2;
-	private PlayerAction action = null;
-	private int key;
-	private MyKeyListener myKeylistener;
+//	private PlayerAction action = null;
+//	private int key;
+	//private MyKeyListener myKeylistener;
+	private boolean isGamePlaying = false;
+	private Thread scannerThread;
+	private Scanner scanner;
 
 	public Window(GameNodeImpl localGame) throws RemoteException {
 		Maze maze = localGame.getMaze();
@@ -67,7 +69,7 @@ public class Window extends JFrame {
 		this.username = localGame.getPlayer().getName();
 		this.setFocusable(true);
 
-		myKeylistener = new MyKeyListener();
+		//myKeylistener = new MyKeyListener();
 
 		// Initialize the variables
 		btnName = new String[N][N];
@@ -84,11 +86,30 @@ public class Window extends JFrame {
 
 		//addKeyListener();
 		
-		addKeyListener(myKeylistener);
+		//addKeyListener(myKeylistener);
+		
+		// create a thread to listen to scanner inputs
+		scannerThread = new Thread(scannerRunnable);
+		scanner = new Scanner(System.in);
+		isGamePlaying = true;
+		
+		scannerThread.start();
 		
 		// update title
 		setWTitle();
 	}
+	
+	private Runnable scannerRunnable = new Runnable() {
+
+		@Override
+		public void run() {
+			while (isGamePlaying){
+				String input = scanner.nextLine();
+				processScannerInput(input);
+			}
+		}
+		
+	};
 
 	private ArrayList<Player> getPlayerList(HashMap<String, Player> players) {
 		ArrayList<Player> playerList = new ArrayList<Player>();
@@ -262,34 +283,71 @@ public class Window extends JFrame {
 	/**
 	 * KEYEVENT
 	 */
-	class MyKeyListener extends KeyAdapter {
-		public void keyReleased(KeyEvent e) {
-			key = e.getKeyCode();
-			if (key == KeyEvent.VK_1) {
-				action = PlayerAction.MOVE_LEFT;
-			} else if (key == KeyEvent.VK_2) {
-				action = PlayerAction.MOVE_DOWN;
-			} else if (key == KeyEvent.VK_3) {
-				action = PlayerAction.MOVE_RIGHT;
-			} else if (key == KeyEvent.VK_4) {
-				action = PlayerAction.MOVE_UP;
-			} else if (key == KeyEvent.VK_9) {
-				action = PlayerAction.QUIT;
-			} else if (key == KeyEvent.VK_0) {
-				action = PlayerAction.STAY;
-			}
-			System.out.println("Key " + action + " pressed");
-			processKeyInput(action);
-			action = null;
-			return;
-		}
-	}
-
-	private void processKeyInput(PlayerAction action) {
+//	class MyKeyListener extends KeyAdapter {
+//		public void keyReleased(KeyEvent e) {
+//			key = e.getKeyCode();
+//			if (key == KeyEvent.VK_1) {
+//				action = PlayerAction.MOVE_LEFT;
+//			} else if (key == KeyEvent.VK_2) {
+//				action = PlayerAction.MOVE_DOWN;
+//			} else if (key == KeyEvent.VK_3) {
+//				action = PlayerAction.MOVE_RIGHT;
+//			} else if (key == KeyEvent.VK_4) {
+//				action = PlayerAction.MOVE_UP;
+//			} else if (key == KeyEvent.VK_9) {
+//				action = PlayerAction.QUIT;
+//			} else if (key == KeyEvent.VK_0) {
+//				action = PlayerAction.STAY;
+//			}
+//			System.out.println("Key " + action + " pressed");
+//			processKeyInput(action);
+//			action = null;
+//			return;
+//		}
+//	}
+//
+//	private void processKeyInput(PlayerAction action) {
+//		
+//		if (action == null) {
+//			return;
+//		}
+//
+//		if (action == PlayerAction.QUIT) {
+//			localGame.closeGame();
+//			close();
+//			System.exit(0);
+//			return;
+//		}
+//
+//		localGame.playerMadeAMove(action);
+//	}
+	
+	private void processScannerInput(String input) {
 		
-		if (action == null) {
+		if (input == null || input.isEmpty()) {
 			return;
 		}
+		
+		PlayerAction action = null;
+		
+		input = input.trim();
+		
+		if (input.equalsIgnoreCase("1")) {
+			action = PlayerAction.MOVE_LEFT;
+		} else if (input.equalsIgnoreCase("2")) {
+			action = PlayerAction.MOVE_DOWN;
+		} else if (input.equalsIgnoreCase("3")) {
+			action = PlayerAction.MOVE_RIGHT;
+		} else if (input.equalsIgnoreCase("4")) {
+			action = PlayerAction.MOVE_UP;
+		} else if (input.equalsIgnoreCase("9")) {
+			action = PlayerAction.QUIT;
+		} else if (input.equalsIgnoreCase("0")) {
+			action = PlayerAction.STAY;
+		}
+		
+		if (action == null)
+			return;
 
 		if (action == PlayerAction.QUIT) {
 			localGame.closeGame();
@@ -316,6 +374,7 @@ public class Window extends JFrame {
 
 	public void close() {
 		// when user request to quit the game
+		isGamePlaying = false;
 		super.dispose();
 	}
 

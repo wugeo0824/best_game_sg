@@ -286,6 +286,7 @@ public class Window extends JFrame {
 	}
 
 	private void processKeyInput(PlayerAction action) {
+		
 		if (action == null) {
 			return;
 		}

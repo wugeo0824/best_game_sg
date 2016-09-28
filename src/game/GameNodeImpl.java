@@ -19,6 +19,15 @@ import model.Maze;
 import model.Player;
 import tracker.Tracker;
 
+
+/**
+ * Game Node
+ * This behaves like a game client.
+ * Each node will have a local simulation of the game running.
+ * 
+ * This is launched via Game.java
+ *
+ */
 public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 
 	/**
@@ -624,14 +633,20 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 
 							newPrimary.enqueueNewMessage(message);
 
+							System.out.println("playerMadeAMove, informed the new primary");
 							return false;
 
 						} catch (RemoteException | NotBoundException e2) {
 							// No three nodes could fail together
-							e2.printStackTrace();
+							//e2.printStackTrace();
+							System.out.println("playerMadeAMove error, failed for finding primary " + i);
 						}
 					}
 				}
+				
+				System.out.println("playerMadeAMove error, cannot find any living primary");
+				isGamePlaying = false;
+				System.exit(0);
 			}
 		}
 

@@ -20,6 +20,9 @@ import utilities.Constants;
 /**
  * Assuming that we have a RMI registry running on the same machine with Tracker
  * 
+ * Keeps a list of current players
+ * 
+ * This also handles the binding and un-binding of game nodes from RMI
  */
 public class TrackerImpl extends UnicastRemoteObject implements Tracker {
 	private static final long serialVersionUID = 4262700063105105025L;

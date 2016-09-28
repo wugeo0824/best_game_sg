@@ -10,11 +10,13 @@ import model.Address;
 import tracker.Tracker;
 import utilities.Constants;
 
-// entry point for the game
-// Here, the player will be asked for the USER NAME
-// Then, the program will contact tracker on the given ip & port
-// Tracker will provide a list of current players, N and K
-// This program will use that name list and start a new game
+/** entry point for the game
+ * Here, the player will provide USER NAME
+ * Then, the program will contact tracker on the given ip & port
+ * Tracker will provide a list of current players, N and K
+ * This program will use that name list and start a new game
+ * 
+ */
 
 public class Game {
 

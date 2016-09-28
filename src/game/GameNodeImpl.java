@@ -161,17 +161,19 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 	public synchronized boolean enqueueNewMessage(ClientMessage message) throws RemoteException {
 		System.out.println("Got message: " + message.toString());
 		messagesFromClient.add(message);
-		serverExecutor.submit(new Runnable() {
-			@Override
-			public void run() {
-				ClientMessage nextMessage = messagesFromClient.poll();
-				if (nextMessage != null) {
-					processMessageFromClient(nextMessage);
+		while (theMaze.isReady() && !messagesFromClient.isEmpty()){
+			serverExecutor.submit(new Runnable() {
+				@Override
+				public void run() {
+					ClientMessage nextMessage = messagesFromClient.poll();
+					if (nextMessage != null) {
+						processMessageFromClient(nextMessage);
+					}
 				}
-			}
+			});
+		}
 
-		});
-		return true;
+		return false;
 	}
 
 	private synchronized boolean processMessageFromClient(ClientMessage message) {
@@ -317,6 +319,7 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 
 		// find new one
 		GameNode backUpNode = null;
+		boolean done = false;
 
 		// find the next available node
 		// start from second one, since first one can be primary and we dont
@@ -326,8 +329,11 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 		if (nodes == null || nodes.size() < 2)
 			return;
 		
-		for (int i = 1; i < nodes.size(); i++) {
+		int i = 1;
+		
+		while (!done){
 			Address address = nodes.get(i);
+			i++;
 			if (address != null && !address.sameAs(here) && !address.sameAs(primaryServer)
 					&& !address.sameAs(backUpServer)) {
 				try {
@@ -338,12 +344,13 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 					backUpServer = address;
 
 					System.out.println(backUpNode.getAddress().getUserName() + " is now back up");
-					break;
+					done = true;
+					
 				} catch (NotBoundException | RemoteException e) {
 					// e.printStackTrace();
 					backUpServer = null;
+					done = false;
 					System.out.println("Building new back up failed for player " + address.getUserName() + ", trying next node");
-					continue;
 				}
 			}
 		}

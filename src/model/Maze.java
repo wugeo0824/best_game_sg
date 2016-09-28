@@ -29,6 +29,7 @@ public class Maze implements Serializable {
 	private HashMap<String, Treasure> treasures;
 
 	private Random rand;
+	private boolean isReady = false;
 
 	public Maze(int size, int numberOfTreasures) {
 		this.size = size;
@@ -41,6 +42,7 @@ public class Maze implements Serializable {
 
 	public void initialize() {
 		initializeTreasures();
+		isReady = true;
 	}
 
 	public synchronized void copyDataFrom(Maze copy) {
@@ -215,4 +217,7 @@ public class Maze implements Serializable {
 		return true;
 	}
 
+	public synchronized boolean isReady() {
+		return isReady;
+	}
 }

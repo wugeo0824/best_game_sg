@@ -1,5 +1,6 @@
 package game;
 
+import java.rmi.AccessException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -44,6 +45,9 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 
 	private LinkedBlockingQueue<ServerMessage> messagesFromServer;
 	private ExecutorService clientExecutor;
+	
+	private ExecutorService houseKeepingExecutor;
+	
 	private Thread pinThread;
 
 	private boolean isGamePlaying = false;
@@ -63,6 +67,8 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 
 		messagesFromServer = new LinkedBlockingQueue<ServerMessage>();
 		clientExecutor = Executors.newSingleThreadExecutor();
+		
+		houseKeepingExecutor = Executors.newSingleThreadExecutor();
 
 		pinThread = new Thread(pinPlayersRunnable);
 	}
@@ -83,6 +89,7 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 	@Override
 	public void startAsPrimary() throws RemoteException {
 		startProcessingMessages();
+		
 		// this node has not been added to the tracker yet
 		primaryServer = here;
 		isPrimary = true;
@@ -95,9 +102,6 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 
 		// start the actual game GUI
 		gameWindow = new Window(this);
-
-		// update the game GUI
-		gameWindow.updateMaze(theMaze);
 
 		// primary should constantly check whether there is dead node
 		pinThread.start();
@@ -160,9 +164,12 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 	@Override
 	public synchronized boolean enqueueNewMessage(ClientMessage message) throws RemoteException {
 		System.out.println("Got message: " + message.toString());
+		// add the message to primary queue
 		messagesFromClient.add(message);
-		while (theMaze.isReady() && !messagesFromClient.isEmpty()){
-			serverExecutor.submit(new Runnable() {
+//		// add the message to backup queue
+//		forwardMessageToBackUp(message);
+//		
+		serverExecutor.submit(new Runnable() {
 				@Override
 				public void run() {
 					ClientMessage nextMessage = messagesFromClient.poll();
@@ -171,12 +178,36 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 					}
 				}
 			});
-		}
 
 		return false;
 	}
+	
+//	private synchronized boolean forwardMessageToBackUp(ClientMessage message) {
+//		
+//		if (backUpServer == null || backUpServer.sameAs(here) || backUpServer.sameAs(primaryServer)) {
+//			Vector<Address> nodes = getNodesListFromTracker();
+//			if (nodes.size() < 2)
+//				return false;
+//			backUpServer = nodes.get(1);
+//		}
+//		
+//		try {
+//			GameNode backUp = (GameNode) LocateRegistry.getRegistry(backUpServer.getHost(), backUpServer.getPort())
+//					.lookup(backUpServer.getKey());
+//			backUp.enqueueNewMessage(message);
+//			return true;
+//		} catch (RemoteException | NotBoundException e) {
+//			// back up is down
+//			e.printStackTrace();
+//			findNewBackUpAndUpdate();
+//			return false;
+//		}
+//	}
 
 	private synchronized boolean processMessageFromClient(ClientMessage message) {
+		
+		System.out.println("Processing message: " + message.toString());
+		
 		Address target = message.getTargetAddress();
 		PlayerAction action = message.getPlayerAction();
 
@@ -184,7 +215,8 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 			// when primary making a move
 			// primary is never making request quit
 			if (action == PlayerAction.JOIN) {
-				theMaze.addPlayer(here.getKey(), me);
+				boolean added = theMaze.addPlayer(here.getKey(), me);
+				System.out.println("Player " + me.getName() + " has been added to maze " + added);
 			} else {
 				theMaze.movePlayer(target.getKey(), action);
 			}
@@ -192,6 +224,8 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 
 			// update the local GUI (this is for primary server)
 			gameWindow.updateMaze(theMaze);
+			
+			System.out.println("Processed message: from primary" + message.toString());
 			return true;
 		}
 
@@ -225,16 +259,14 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 		// update the local GUI (this is for primary server)
 		gameWindow.updateMaze(theMaze);
 
-		Address callingAddress = null;
 		// update the calling player node
 		try {
 			callingNode.updateGame(new ServerMessage(theMaze));
-			callingAddress = callingNode.getAddress();
 
 			// if backUpServer has not set up yet
 			if (backUpServer == null || backUpServer.sameAs(here)) {
 				findNewBackUpAndUpdate();
-			} else if (!callingAddress.sameAs(backUpServer)) {
+			} else if (!target.sameAs(backUpServer)) {
 				// update the back up server
 				updateBackUpServer();
 			}
@@ -259,7 +291,6 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 		isBackUp = false;
 		primaryServer = here;
 		backUpServer = null;
-		findNewBackUpAndUpdate();
 
 		if (!pinThread.isAlive())
 			pinThread.start();
@@ -278,37 +309,40 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 	 * only be called by primary server
 	 */
 	private synchronized boolean updateBackUpServer() {
-		GameNode backUpNode = null;
-
+		
 		if (backUpServer == null || backUpServer.sameAs(here) || backUpServer.sameAs(primaryServer)) {
-			Vector<Address> nodes = getNodesListFromTracker();
-			if (nodes.size() < 2)
-				return false;
-			backUpServer = nodes.get(1);
-		}
-
-		try {
-			backUpNode = (GameNode) LocateRegistry.getRegistry(backUpServer.getHost(), backUpServer.getPort())
-					.lookup(backUpServer.getKey());
-			backUpNode.updateGame(new ServerMessage(theMaze));
-
-			if (!backUpNode.isBackUp())
-				backUpNode.becomeBackUp(here);
-
-			System.out
-					.println("BackUp Server " + backUpNode.getAddress().getUserName() + " has updated with new state");
-
-			return true;
-		} catch (RemoteException | NotBoundException e) {
-			// in the event that back up server is no where to be found
-			System.out.println("BackUp Server has stopped working");
-			// remove the old dead back up node
-			removePlayer(backUpServer);
-			// find a new one
 			findNewBackUpAndUpdate();
+		}else {
+			houseKeepingExecutor.submit(new Runnable(){
 
-			return false;
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					GameNode backUpNode = null;
+
+					try {
+						backUpNode = (GameNode) LocateRegistry.getRegistry(backUpServer.getHost(), backUpServer.getPort())
+								.lookup(backUpServer.getKey());
+						backUpNode.updateGame(new ServerMessage(theMaze));
+
+						if (!backUpNode.isBackUp())
+							backUpNode.becomeBackUp(here);
+
+						System.out.println("BackUp Server " + backUpNode.getAddress().getUserName() + " has updated with new state");
+					} catch (RemoteException | NotBoundException e) {
+						// in the event that back up server is no where to be found
+						System.out.println("BackUp Server has stopped working");
+						// remove the old dead back up node
+						removePlayer(backUpServer);
+						// find a new one
+						findNewBackUpAndUpdate();
+					}
+				}
+				
+			});
 		}
+		
+		return true;
 	}
 
 	/**
@@ -318,8 +352,6 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 	private synchronized void findNewBackUpAndUpdate() {
 
 		// find new one
-		GameNode backUpNode = null;
-		boolean done = false;
 
 		// find the next available node
 		// start from second one, since first one can be primary and we dont
@@ -329,31 +361,46 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 		if (nodes == null || nodes.size() < 2)
 			return;
 		
-		int i = 1;
-		
-		while (!done){
-			Address address = nodes.get(i);
-			i++;
-			if (address != null && !address.sameAs(here) && !address.sameAs(primaryServer)
-					&& !address.sameAs(backUpServer)) {
-				try {
-					backUpNode = (GameNode) LocateRegistry.getRegistry(address.getHost(), address.getPort())
-							.lookup(address.getKey());
-					backUpNode.updateGame(new ServerMessage(theMaze));
-					backUpNode.becomeBackUp(here);
-					backUpServer = address;
+		houseKeepingExecutor.submit(new Runnable(){
 
-					System.out.println(backUpNode.getAddress().getUserName() + " is now back up");
-					done = true;
+			@Override
+			public void run() {
+				GameNode backUpNode = null;
+				int i = 0;
+				
+				while (i < nodes.size()){
+					System.out.println("Searching for new back up " + i);
 					
-				} catch (NotBoundException | RemoteException e) {
-					// e.printStackTrace();
-					backUpServer = null;
-					done = false;
-					System.out.println("Building new back up failed for player " + address.getUserName() + ", trying next node");
+					Address address = nodes.get(i);
+					i++;
+					
+					if (!(address == null || address.sameAs(here) || address.sameAs(primaryServer)
+							|| address.sameAs(backUpServer))) {
+						try {
+							backUpNode = (GameNode) LocateRegistry.getRegistry(address.getHost(), address.getPort())
+									.lookup(address.getKey());
+							backUpNode.becomeBackUp(here);
+							backUpServer = address;
+
+							backUpNode.updateGame(new ServerMessage(theMaze));
+							
+							System.out.println(backUpNode.getAddress().getUserName() + " is now back up");
+							i = nodes.size();
+							
+							break;
+						} catch (NotBoundException | RemoteException e) {
+							// e.printStackTrace();
+							removePlayer(address);
+							backUpServer = null;
+							System.out.println("Building new back up failed for player " + address.getUserName() + ", trying next node");
+						}
+					}
 				}
+				
+				return;
 			}
-		}
+		});
+
 	}
 
 	private synchronized Vector<Address> getNodesListFromTracker() {
@@ -459,7 +506,6 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 
 		// notify the tracker of player leaving
 		try {
-			
 			tracker.deleteNode(playerAddress);
 			
 		} catch (RemoteException e) {
@@ -547,21 +593,16 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 			System.out.println("playerMadeAMove error, primary is down");
 
 			try {
-				GameNode nextPrimary = (GameNode) LocateRegistry.getRegistry(backUpServer.getHost(), backUpServer.getPort())
-						.lookup(backUpServer.getKey());
-
-				if (!nextPrimary.isPrimary())
-					nextPrimary.becomePrimary();
-
-				primaryServer = nextPrimary.getAddress();
-				backUpServer = nextPrimary.getBackUpServerAddress();
-
-				if (backUpServer.sameAs(here) && !isBackUp) {
-					becomeBackUp(primaryServer);
+				if (isBackUp || backUpServer.sameAs(here)){
+					becomePrimary();
+					enqueueNewMessage(message);
+				}else {
+					GameNode nextPrimary = findNewPrimary(backUpServer);
+					nextPrimary.enqueueNewMessage(message);
 				}
-
-				nextPrimary.enqueueNewMessage(message);
-
+				
+				System.out.println("playerMadeAMove, informed the new primary");
+				
 				return false;
 
 			} catch (RemoteException | NotBoundException e1) {
@@ -575,15 +616,8 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 					Address address = nodes.get(i);
 					if (!address.sameAs(here) && !address.sameAs(primaryServer) && !address.sameAs(backUpServer)) {
 						try {
-							GameNode newPrimary = (GameNode) LocateRegistry
-									.getRegistry(address.getHost(), address.getPort()).lookup(address.getKey());
-
-							if (newPrimary.isPrimary())
-								newPrimary.becomePrimary();
-
-							primaryServer = newPrimary.getAddress();
-							backUpServer = newPrimary.getBackUpServerAddress();
-
+							GameNode newPrimary = findNewPrimary(address);
+							
 							if (backUpServer.sameAs(here) && !isBackUp) {
 								becomeBackUp(primaryServer);
 							}
@@ -602,6 +636,24 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 		}
 
 		return true;
+	}
+	
+	private synchronized GameNode findNewPrimary(Address target) throws AccessException, RemoteException, NotBoundException {
+		
+		GameNode nextPrimary = (GameNode) LocateRegistry.getRegistry(target.getHost(), target.getPort())
+				.lookup(target.getKey());
+
+		if (!nextPrimary.isPrimary())
+			nextPrimary.becomePrimary();
+
+		primaryServer = nextPrimary.getAddress();
+		backUpServer = nextPrimary.getBackUpServerAddress();
+
+		if (backUpServer.sameAs(here) && !isBackUp) {
+			becomeBackUp(primaryServer);
+		}
+		
+		return nextPrimary;
 	}
 
 	/**
@@ -644,7 +696,7 @@ public class GameNodeImpl extends UnicastRemoteObject implements GameNode {
 						});
 					}
 				}
-				serverExecutor.shutdown();
+				//serverExecutor.shutdown();
 				
 				theMaze.removePlayer(here.getKey());
 				

@@ -53,6 +53,7 @@ public class Maze implements Serializable {
 		players.putAll(copy.players);
 		treasures.clear();
 		treasures.putAll(copy.treasures);
+		isReady = true;
 	}
 
 	/**

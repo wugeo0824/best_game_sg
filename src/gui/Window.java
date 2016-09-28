@@ -67,13 +67,20 @@ public class Window extends JFrame {
 		this.setVisible(true);
 		this.localGame = localGame;
 		this.username = localGame.getPlayer().getName();
-		this.setFocusable(true);
+		//this.setFocusable(true);
 
 		//myKeylistener = new MyKeyListener();
 
 		// Initialize the variables
 		btnName = new String[N][N];
 		buttons = new JButton[N][N];
+		
+		for (int r = 0; r < N; r++) {
+			for (int c = 0; c < N; c++) {
+				JButton btn = getNewJButton();
+				buttons[r][c] = btn;
+			}
+		}
 
 		playerList = new ArrayList<Player>();
 		treasureList = new ArrayList<Treasure>();
@@ -253,15 +260,9 @@ public class Window extends JFrame {
 		if (p2 == null) {
 			p2 = new JPanel();
 			p2.setLayout(new GridLayout(N, N));
-
 			for (int r = 0; r < N; r++) {
 				for (int c = 0; c < N; c++) {
-					JButton btn = new JButton();
-					btn.setFocusable(false);
-					btn.setPreferredSize(new Dimension(50, 50));
-					btn.setBorder(BorderFactory.createEtchedBorder());
-					buttons[r][c] = btn;
-					p2.add(btn);
+					p2.add(buttons[r][c]);
 				}
 			}
 			add(p2, BorderLayout.EAST);
@@ -274,6 +275,13 @@ public class Window extends JFrame {
 		}
 
 		return p2;
+	}
+	
+	private JButton getNewJButton() {
+		JButton btn = new JButton();
+		btn.setPreferredSize(new Dimension(50, 50));
+		btn.setBorder(BorderFactory.createEtchedBorder());
+		return btn;
 	}
 
 	public void updateAllPositions() {
